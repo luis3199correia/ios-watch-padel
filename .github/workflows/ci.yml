@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-padelkit:
+    name: Test PadelKit (PadelCore)
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: Packages/PadelKit
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+      - name: swift test
+        run: swift test --disable-sandbox
