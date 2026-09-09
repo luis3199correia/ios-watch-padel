@@ -20,12 +20,25 @@ struct ScoreFormatterAndStatisticsTests {
 
     @Test("Set summary joins multiple sets with commas")
     func multiSetSummary() {
+        let end = Date()
         let sets = [
-            SetScore(index: 0, gamesA: 6, gamesB: 4, winner: .a),
-            SetScore(index: 1, gamesA: 4, gamesB: 6, winner: .b),
-            SetScore(index: 2, gamesA: 6, gamesB: 2, winner: .a),
+            SetScore(index: 0, gamesA: 6, gamesB: 4, winner: .a, endedAt: end),
+            SetScore(index: 1, gamesA: 4, gamesB: 6, winner: .b, endedAt: end),
+            SetScore(index: 2, gamesA: 6, gamesB: 2, winner: .a, endedAt: end),
         ]
         #expect(ScoreFormatter.setScoreSummary(sets) == "6-4, 4-6, 6-2")
+    }
+
+    @Test("Set summary includes a drawn mix round (no winner, but it did end)")
+    func drawnMixRoundSummary() {
+        let set = SetScore(index: 0, gamesA: 4, gamesB: 4, winner: nil, endedAt: Date())
+        #expect(ScoreFormatter.setScoreSummary([set]) == "4-4")
+    }
+
+    @Test("Set summary excludes a set that hasn't ended yet")
+    func unfinishedSetExcludedFromSummary() {
+        let set = SetScore(index: 0, gamesA: 3, gamesB: 2)
+        #expect(ScoreFormatter.setScoreSummary([set]) == "")
     }
 
     @Test("MatchStatistics computes duration from start to finish")
@@ -37,7 +50,7 @@ struct ScoreFormatterAndStatisticsTests {
             sets: [SetScore(index: 0, gamesA: 6, gamesB: 2, winner: .a)],
             currentGame: .newGame(),
             servingTeam: .a,
-            phase: .finished(winner: .a, at: end),
+            phase: .finished(outcome: .win(.a), at: end),
             startedAt: start
         )
         let stats = MatchStatistics.compute(from: state, events: [])
@@ -66,5 +79,22 @@ struct ScoreFormatterAndStatisticsTests {
         let stats = MatchStatistics.compute(from: state, events: [])
         #expect(stats.longestPointStreak == nil)
         #expect(stats.totalPointsA == 0 && stats.totalPointsB == 0)
+    }
+
+    @Test("MatchStatistics counts breaks of serve (games won while not serving) per team")
+    func statisticsBreaksOfServe() {
+        let games = [
+            CompletedGame(index: 0, pointsA: 4, pointsB: 0, winner: .a, decidedBySuddenDeath: false, servingTeam: .a, startedAt: nil, endedAt: nil), // A holds
+            CompletedGame(index: 1, pointsA: 4, pointsB: 2, winner: .a, decidedBySuddenDeath: false, servingTeam: .b, startedAt: nil, endedAt: nil), // A breaks
+            CompletedGame(index: 2, pointsA: 1, pointsB: 4, winner: .b, decidedBySuddenDeath: false, servingTeam: .a, startedAt: nil, endedAt: nil), // B breaks
+        ]
+        let set = SetScore(index: 0, gamesA: 2, gamesB: 1, completedGames: games)
+        let state = MatchState(
+            rules: .standardSets, sets: [set], currentGame: .newGame(),
+            servingTeam: .a, phase: .inProgress, startedAt: nil
+        )
+        let stats = MatchStatistics.compute(from: state, events: [])
+        #expect(stats.breaksOfServeA == 1)
+        #expect(stats.breaksOfServeB == 1)
     }
 }

@@ -11,13 +11,19 @@ public struct MatchStatistics: Sendable, Equatable {
     public let totalPointsA: Int
     public let totalPointsB: Int
     public let longestPointStreak: PointStreak?
+    /// Games won while NOT serving (a "break of serve"), per team.
+    public let breaksOfServeA: Int
+    public let breaksOfServeB: Int
 
     public static func compute(from state: MatchState, events: [PointEvent]) -> MatchStatistics {
+        let completedGames = state.sets.flatMap { $0.completedGames }
         MatchStatistics(
             duration: duration(from: state, events: events),
             totalPointsA: state.pointsWonA,
             totalPointsB: state.pointsWonB,
-            longestPointStreak: longestStreak(in: events)
+            longestPointStreak: longestStreak(in: events),
+            breaksOfServeA: completedGames.filter { $0.winner == .a && $0.servingTeam == .b }.count,
+            breaksOfServeB: completedGames.filter { $0.winner == .b && $0.servingTeam == .a }.count
         )
     }
 

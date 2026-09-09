@@ -88,11 +88,7 @@ struct SetAndTieBreakTests {
         }
         #expect(engine.isFinished)
         #expect(engine.state.sets.count == 1)
-        if case .finished(let winner, _) = engine.state.phase {
-            #expect(winner == .a)
-        } else {
-            Issue.record("Match should be finished")
-        }
+        #expect(engine.state.phase.winner == .a)
     }
 
     // MARK: - Tie-break scoring
@@ -128,7 +124,7 @@ struct SetAndTieBreakTests {
     @Test("Tie-break set score is recorded as e.g. 7-6 with the tie-break points in the summary")
     func tieBreakSetSummaryFormatting() {
         let tieBreak = TieBreakScore(pointsA: 7, pointsB: 5)
-        let set = SetScore(index: 0, gamesA: 7, gamesB: 6, tieBreak: tieBreak, winner: .a)
+        let set = SetScore(index: 0, gamesA: 7, gamesB: 6, tieBreak: tieBreak, winner: .a, endedAt: Date())
         #expect(ScoreFormatter.setScoreSummary([set]) == "7-6(5)")
     }
 

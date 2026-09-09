@@ -21,14 +21,19 @@ public enum DeuceRule: Codable, Hashable, Sendable {
     public static let starPointDefault = DeuceRule.starPoint(deuceLimit: 3)
 }
 
-/// The shape of a match: either a traditional best-of-N-sets match, or a single continuous
-/// "pro-set" played straight to a target number of games.
+/// The shape of a match: a traditional best-of-N-sets match, a single continuous "pro-set"
+/// played straight to a target number of games, or a "mix" round with no game target at all.
 public enum MatchFormat: Codable, Hashable, Sendable {
     /// Best of `bestOf` sets (1, 3 or 5), each set played to 6 games with a tie-break at 6-6.
     case sets(bestOf: Int)
     /// A single set played straight to `targetGames` (e.g. 9), 2-game margin to win, tie-break
     /// at `targetGames - 1` games each.
     case proSet(targetGames: Int)
+    /// Games are played back-to-back with no target and no tie-break — the round just
+    /// accumulates games won until `MatchEngine.endManually(at:)` is called (e.g. when time
+    /// runs out in a timed "Americano"-style rotation), at which point whichever team has won
+    /// more games wins, or the round is a draw if tied.
+    case mix
 }
 
 /// Configurable rules for a match, chosen when the match is created and editable afterwards.
@@ -43,11 +48,14 @@ public struct MatchRules: Codable, Hashable, Sendable {
         self.tieBreakTargetPoints = tieBreakTargetPoints
     }
 
-    /// Number of sets a team must win to win the match.
+    /// Number of sets a team must win to win the match. Unreachable in `.mix`, which never
+    /// completes on score alone — `Int.max` simply keeps the shared set-evaluation logic below
+    /// from ever triggering a win by score for that format.
     public var setsNeededToWin: Int {
         switch format {
         case .sets(let bestOf): return bestOf / 2 + 1
         case .proSet: return 1
+        case .mix: return .max
         }
     }
 
@@ -56,6 +64,7 @@ public struct MatchRules: Codable, Hashable, Sendable {
         switch format {
         case .sets: return 6
         case .proSet(let targetGames): return targetGames
+        case .mix: return .max
         }
     }
 
@@ -64,11 +73,13 @@ public struct MatchRules: Codable, Hashable, Sendable {
         switch format {
         case .sets: return 6
         case .proSet(let targetGames): return targetGames - 1
+        case .mix: return .max
         }
     }
 
     public static let standardSets = MatchRules(format: .sets(bestOf: 3), deuceRule: .classicAdvantage)
     public static let standardProSet = MatchRules(format: .proSet(targetGames: 9), deuceRule: .classicAdvantage)
+    public static let standardMix = MatchRules(format: .mix, deuceRule: .classicAdvantage)
 }
 
 /// A single point awarded to a team. The immutable, ordered log of these events is the source
@@ -185,14 +196,32 @@ public struct SetScore: Codable, Hashable, Sendable {
     public func games(for team: Team) -> Int { team == .a ? gamesA : gamesB }
 }
 
+/// How a finished match was decided: a clear winner, or a draw (only possible in `.mix` rounds,
+/// which are ended manually rather than by reaching a target score).
+public enum MatchOutcome: Codable, Hashable, Sendable {
+    case win(Team)
+    case draw
+}
+
 /// Whether the match has started, is in progress, or has finished.
 public enum MatchPhase: Codable, Hashable, Sendable {
     case notStarted
     case inProgress
-    case finished(winner: Team, at: Date)
+    case finished(outcome: MatchOutcome, at: Date)
 
     public var isFinished: Bool {
         if case .finished = self { return true }
+        return false
+    }
+
+    /// The winning team, or `nil` if the match isn't finished yet or ended in a draw.
+    public var winner: Team? {
+        if case .finished(.win(let team), _) = self { return team }
+        return nil
+    }
+
+    public var isDraw: Bool {
+        if case .finished(.draw, _) = self { return true }
         return false
     }
 }

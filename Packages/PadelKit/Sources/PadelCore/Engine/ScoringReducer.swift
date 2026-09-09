@@ -107,7 +107,7 @@ public enum ScoringReducer {
                 newState.sets[newState.sets.count - 1] = finishedSet
 
                 if let matchWinner = MatchWinnerEvaluator.winner(in: newState.sets, rules: newState.rules) {
-                    newState.phase = .finished(winner: matchWinner, at: event.timestamp)
+                    newState.phase = .finished(outcome: .win(matchWinner), at: event.timestamp)
                     return ScoringOutcome(
                         state: newState, didWinGame: gameWinner, didWinSet: setWinner, didWinMatch: matchWinner,
                         didEnterTieBreak: false, wasRejected: false

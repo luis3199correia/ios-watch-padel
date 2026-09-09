@@ -46,6 +46,31 @@ Nenhuma entidade usa `@Attribute(.unique)`. Constrangimentos unique bloqueiam um
 
 iPhone e Watch são dispositivos distintos e não partilham container — a partilha de dados é sempre via WatchConnectivity. App Groups só serão necessários se/quando se adicionar um widget iOS ou complication watchOS que leia dados do host diretamente.
 
+## 8b. Formato "Mix" (estilo Americano) e sessões
+
+Novo `MatchFormat.mix`: joga-se jogos consecutivos (0/15/30/40, com a `DeuceRule` escolhida pelo utilizador — configurável, igual às partidas normais) **sem alvo de jogos e sem tie-break** — o placar do round fica livre (ex: "4-3", "5-5"). Implementado fazendo `MatchRules.gamesToWinSet`/`tieBreakAtGames`/`setsNeededToWin` devolverem `Int.max` para este formato, reaproveitando toda a lógica genérica de `SetScoring`/`ScoringReducer` sem qualquer `if format == .mix` espalhado pelo motor.
+
+- **Terminar Partida**: chama `MatchEngine.endManually(at:)` — decide o vencedor da ronda pelos jogos completos (`gamesA` vs `gamesB`); **empate é um resultado válido** (ex: 4-4) quando os jogos são iguais, incluindo 0-0 se a ronda terminar sem nenhum jogo completo. Um jogo em curso mas incompleto no momento de terminar **não conta** para nenhuma das equipas (só jogos completos entram no placar do round).
+- Isto obrigou a generalizar `MatchPhase.finished` para `finished(outcome: MatchOutcome, at: Date)`, onde `MatchOutcome` é `.win(Team)` ou `.draw` — as partidas normais (sets/pro-set) nunca produzem `.draw` na prática (têm sempre vencedor claro), mas o tipo já suporta o caso.
+- **Terminar Sessão**: ainda não modelado em `PadelCore` (é um conceito de `PadelData`/UI, não de motor de pontuação) — cada "Terminar Partida" cria simplesmente um novo `MatchEngine` para a ronda seguinte; "Terminar Sessão" é quem decide não criar mais nenhum.
+
+### Decisões confirmadas com o utilizador para a Fase 2 (SwiftData), a implementar quando lá chegarmos
+
+- **Sessão** (nova entidade `Session` em `PadelData`): agrupa várias `Match` (rondas) de formato `.mix`. Guarda a duração alvo da sessão (ex: 90 min) e da ronda (ex: 15-20 min) — apenas informativos/cronómetro visível, **não** cortam a ronda automaticamente; o utilizador termina sempre manualmente.
+- **Sessão de treino HealthKit contínua**: uma única `HKWorkoutSession` desde o início da sessão até "Terminar Sessão" — "Terminar Partida" NÃO pausa nem reinicia o treino, só fecha a ronda e abre a seguinte.
+- **Jogadores no Mix**: a "minha equipa" (eu + nome do parceiro) usa `Player`/`MatchParticipant` normais, reutilizáveis entre sessões. Os adversários são **sempre anónimos** — `MatchParticipant` com `displayName: "Adversário 1"/"Adversário 2"` e `player: nil`, sem criar/reutilizar registos de `Player` para eles (rodam a cada ronda, não há tentativa de os identificar nem de calcular um leaderboard entre as 6+ duplas presentes — a app só regista a perspetiva de quem tem o Watch).
+- **Histórico**: uma sessão Mix aparece como **uma entrada agregada** no histórico do iPhone (ex: "Mix · 7 Set · 90 min · 5 rondas"), com as rondas individuais e estatísticas agregadas da sessão dentro do ecrã de detalhe — não uma entrada por ronda.
+
+### Correção pós-revisão: `endManually` e undo
+
+A primeira versão de `endManually` mutava `MatchState.phase` diretamente sem passar pelo log de eventos, o que quebrava a invariante #1 (log de eventos como fonte de verdade): um `undoLastPoint()` a seguir a `endManually()` recomputava o estado só a partir de `events` (que `endManually` nunca tocou), **des-terminando** a partida e, pior, apagando silenciosamente o último ponto real registado. Corrigido com um campo privado `MatchEngine.manualEndAt: Date?`: `undoLastPoint()` agora desfaz primeiro o "terminar manualmente" (se existir) antes de começar a remover pontos reais do log — como uma pilha de undo com dois tipos de ação. `endManually` também passou a ser no-op fora do formato `.mix` (antes assumia implicitamente que só seria chamado em rondas Mix, sem impor isso).
+
+**Limite de scope para a Fase 2 (persistência)**: `manualEndAt` vive só em memória no `MatchEngine` durante uma sessão de pontuação ativa — não é (nem precisa de ser) reconstruído a partir do log de eventos. Uma vez que um jogo termina (manual ou automaticamente) e é persistido em SwiftData, o resultado final (`Match.status`, `MatchSet.winnerTeamRaw`, `endedAt`) fica guardado diretamente nos campos da entidade — a app volta a ler esses campos como dados estáticos, não reconstrói um `MatchEngine` a partir do zero para um jogo já concluído. `MatchEngine` só precisa de ser reconstruído (via replay de `events`) para retomar uma ronda **ainda em curso**, cenário em que `endManually` nunca terá sido chamado.
+
+## 8c. Estatísticas de análise: quebras de serviço
+
+`MatchStatistics` ganhou `breaksOfServeA`/`breaksOfServeB` (jogos ganhos a **não** servir, por equipa) — deriva-se de `CompletedGame.servingTeam`, que já existia. Pedido do utilizador por "análise de resultado da partida" no histórico; esta é a primeira métrica de análise além de duração/pontos totais/sequência mais longa. Mais métricas (ex: % pontos ganhos ao serviço, tendência por set) ficam para quando houver pedido concreto — YAGNI.
+
 ## 8. Ambiente de desenvolvimento sem macOS local
 
 O trabalho de implementação começou numa máquina Windows, sem Xcode/SDK watchOS/simuladores. `Packages/PadelKit` (motor de pontuação + dados) é Swift puro e compila/testa de forma independente (`swift test`), incluindo em CI (`macos-latest` no GitHub Actions) sem precisar de assinatura. Os targets de app (iOS/watchOS) só podem ser criados, compilados e validados num Mac — ver `README.md`.
