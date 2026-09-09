@@ -20,8 +20,8 @@ jobs:
       - name: swift test
         run: swift test --disable-sandbox
 
-  build-padelui-platforms:
-    name: Build PadelUI (${{ matrix.label }})
+  build-platforms:
+    name: Build ${{ matrix.scheme }} (${{ matrix.label }})
     runs-on: macos-latest
     defaults:
       run:
@@ -29,13 +29,21 @@ jobs:
     strategy:
       matrix:
         include:
-          - destination: "generic/platform=iOS Simulator"
+          - scheme: PadelUI
+            destination: "generic/platform=iOS Simulator"
             label: iOS
-          - destination: "generic/platform=watchOS Simulator"
+          - scheme: PadelUI
+            destination: "generic/platform=watchOS Simulator"
+            label: watchOS
+          - scheme: PadelData
+            destination: "generic/platform=iOS Simulator"
+            label: iOS
+          - scheme: PadelData
+            destination: "generic/platform=watchOS Simulator"
             label: watchOS
     steps:
       - uses: actions/checkout@v4
       - name: Xcode version
         run: xcodebuild -version
-      - name: xcodebuild PadelUI for ${{ matrix.label }}
-        run: xcodebuild build -scheme PadelUI -destination "${{ matrix.destination }}"
+      - name: xcodebuild ${{ matrix.scheme }} for ${{ matrix.label }}
+        run: xcodebuild build -scheme ${{ matrix.scheme }} -destination "${{ matrix.destination }}"

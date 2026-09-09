@@ -11,6 +11,7 @@ let package = Package(
     products: [
         .library(name: "PadelCore", targets: ["PadelCore"]),
         .library(name: "PadelUI", targets: ["PadelUI"]),
+        .library(name: "PadelData", targets: ["PadelData"]),
     ],
     targets: [
         .target(
@@ -27,6 +28,14 @@ let package = Package(
         .testTarget(
             name: "PadelUITests",
             dependencies: ["PadelUI"]
+        ),
+        .target(
+            name: "PadelData",
+            dependencies: ["PadelCore"]
+        ),
+        .testTarget(
+            name: "PadelDataTests",
+            dependencies: ["PadelData"]
         ),
     ]
 )
