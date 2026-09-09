@@ -17,7 +17,7 @@ public struct MatchStatistics: Sendable, Equatable {
 
     public static func compute(from state: MatchState, events: [PointEvent]) -> MatchStatistics {
         let completedGames = state.sets.flatMap { $0.completedGames }
-        MatchStatistics(
+        return MatchStatistics(
             duration: duration(from: state, events: events),
             totalPointsA: state.pointsWonA,
             totalPointsB: state.pointsWonB,
