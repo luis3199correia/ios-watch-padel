@@ -8,6 +8,8 @@ O placar de um jogo nunca é guardado diretamente — é sempre **derivado** de 
 
 **Porquê**: torna o "desfazer último ponto" trivialmente correto (basta remover o último evento e repetir o replay) e dá a timeline do jogo de graça, sem estrutura adicional. Qualquer bug de projeção é recuperável por reprojeção, sem perda de dados.
 
+**Correção**: `CompletedGame.id` tinha `UUID()` aleatório por omissão, o que quebrava esta invariante na prática — dois replays do mesmo log de eventos produziam `MatchState`s com jogos completos "iguais" mas ids diferentes, falhando comparações de igualdade (incluindo o caso real de `undoLastPoint()` após `endManually()`, que força um replay total). Corrigido em `ScoringReducer.apply` para derivar `id: event.id` do evento que decidiu o jogo — determinístico e estável entre pontuação incremental e replay.
+
 ## 2. Formato da partida: por sets ou pro-set
 
 `MatchFormat` tem dois casos:

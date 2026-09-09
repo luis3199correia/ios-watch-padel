@@ -119,12 +119,14 @@ struct GameScoringTests {
         }
         #expect(secondDeuce.deuceCount == 2)
 
-        // 2nd deuce still not sudden death.
+        // 2nd deuce still not sudden death. Raw counts keep accumulating (never reset to 3-3 on
+        // a new deuce — see `classicAdvantageNeverEndsWithoutTwoPointMargin`), so this advantage
+        // round starts from 4-4, not 3-3.
         guard case .ongoing(let advantageB) = GameScoring.awardPoint(to: .b, in: secondDeuce, deuceRule: rule) else {
             Issue.record("Second deuce should still allow a normal advantage round")
             return
         }
-        #expect(advantageB.rawB == 4 && advantageB.rawA == 3)
+        #expect(advantageB.rawA == 4 && advantageB.rawB == 5)
     }
 
     @Test("Star point: the third time the game reaches deuce, the next point decides it")

@@ -58,6 +58,10 @@ public enum ScoringReducer {
 
         case .won(let gameWinner, let finalGame, let decidedBySuddenDeath):
             currentSet.completedGames.append(CompletedGame(
+                // Derived from the deciding event's id (not a fresh random UUID) so that
+                // replaying the same event log always reconstructs an identical MatchState —
+                // see decisions.md #1.
+                id: event.id,
                 index: currentSet.completedGames.count,
                 pointsA: finalGame.rawA, pointsB: finalGame.rawB,
                 winner: gameWinner, decidedBySuddenDeath: decidedBySuddenDeath,
