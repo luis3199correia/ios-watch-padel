@@ -23,9 +23,9 @@ struct EntityGraphTests {
         let context = try PadelModelContainer.make(inMemory: true).mainContext
         let session = Session(targetDuration: 90 * 60, rules: .standardMix)
         let round = Match(roundIndex: 0, rules: .standardMix)
-        round.session = session
-        session.rounds = [round]
         context.insert(session)
+        context.insert(round)
+        round.session = session // set only one side of the inverse pair; SwiftData syncs session.rounds
         try context.save()
 
         context.delete(session)
@@ -41,10 +41,10 @@ struct EntityGraphTests {
         let player = Player(name: "Luís")
         let match = Match(rules: .standardSets)
         let participant = MatchParticipant(team: .a, displayName: "Luís", position: 0, player: player)
-        participant.match = match
-        match.participants = [participant]
         context.insert(player)
         context.insert(match)
+        context.insert(participant)
+        participant.match = match // set only one side; SwiftData syncs match.participants
         try context.save()
 
         context.delete(player)
@@ -63,10 +63,11 @@ struct EntityGraphTests {
         let round = Match(rules: .standardMix)
         let opponent1 = MatchParticipant(team: .b, displayName: "Adversário 1", position: 0)
         let opponent2 = MatchParticipant(team: .b, displayName: "Adversário 2", position: 1)
-        opponent1.match = round
-        opponent2.match = round
-        round.participants = [opponent1, opponent2]
         context.insert(round)
+        context.insert(opponent1)
+        context.insert(opponent2)
+        opponent1.match = round // set only one side; SwiftData syncs round.participants
+        opponent2.match = round
         try context.save()
 
         #expect(try context.fetch(FetchDescriptor<Player>()).isEmpty)
