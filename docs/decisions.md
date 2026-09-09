@@ -74,3 +74,18 @@ A primeira versão de `endManually` mutava `MatchState.phase` diretamente sem pa
 ## 8. Ambiente de desenvolvimento sem macOS local
 
 O trabalho de implementação começou numa máquina Windows, sem Xcode/SDK watchOS/simuladores. `Packages/PadelKit` (motor de pontuação + dados) é Swift puro e compila/testa de forma independente (`swift test`), incluindo em CI (`macos-latest` no GitHub Actions) sem precisar de assinatura. Os targets de app (iOS/watchOS) só podem ser criados, compilados e validados num Mac — ver `README.md`.
+
+## 9. Camada de UI como target do package (`PadelUI`)
+
+As views SwiftUI vivem num segundo target do `Packages/PadelKit` (`PadelUI`), não num projeto Xcode separado. Continua a aplicar a decisão #8: o CI em `macos-latest` consegue compilar e testar tudo (`swift test` + `xcodebuild -scheme PadelUI` para os destinos iOS e watchOS simulator) antes de existir qualquer `.xcodeproj`. Quando o projeto de app for criado no Mac, os targets de app ficam finos — só `@main`, HealthKit, `WCSession` e o container SwiftData, que são precisamente as partes que não dá para validar aqui.
+
+Regras de arquitetura para `PadelUI`:
+
+1. Importa só `PadelCore`, `SwiftUI` e `Foundation` — nunca HealthKit, WatchConnectivity, SwiftData ou UIKit diretamente.
+2. Efeitos secundários entram como closures (`onScore: (Team) -> Void`, `onUndo: () -> Void`) — sem protocolos/DI até haver uma segunda implementação real.
+3. Dados do dispositivo (HealthKit, etc.) entram como structs simples (ex: `WorkoutMetrics`, todos os campos opcionais) que a app preenche mais tarde.
+4. Código específico de plataforma (`#if os(...)`) só existe em `Theme/PlatformShims.swift` — todo o resto é SwiftUI cross-platform, para que o build macOS do `swift test` sirva de type-check real da UI.
+5. Texto em português vive em `Formatting/Strings.swift`, não espalhado pelas views.
+6. Não se adiciona API de apresentação ao `PadelCore` — `ScoreFormatter` continua a ser o único ficheiro do motor com conhecimento de apresentação; o resto (nomes de regras, durações, dots da timeline) vive em `PadelUI/Formatting`.
+
+Ecrãs que dependem de dados que só existirão na Fase 2 (SwiftData — `Player`/`Match`/`Session`) usam structs de apresentação simples e permanentes (ex: `HistoryEntry`, `PlayerRow`), não modelos descartáveis. Os formulários "Novo Jogo" e "Nova Sessão" ficam explicitamente adiados para depois da Fase 2, para não inventar um modelo de rascunho de `Player`/`Match` que teria de ser substituído.

@@ -13,6 +13,7 @@ App nativa Apple (iPhone + Apple Watch) para registar jogos de padel.
 ```
 Packages/PadelKit/     Swift Package partilhado entre iOS e watchOS
   Sources/PadelCore/   Motor de pontuação puro (Swift + Foundation, sem UI/HealthKit) — testável isoladamente
+  Sources/PadelUI/     Views SwiftUI + design system (sem HealthKit/SwiftData) — ver docs/decisions.md #9
 PadelScore/            Target da app iOS (a criar no Xcode, no Mac)
 PadelScore Watch App/  Target da app watchOS (a criar no Xcode, no Mac)
 docs/                  Decisões de arquitetura e checklists de teste manual

@@ -19,3 +19,23 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.app
       - name: swift test
         run: swift test --disable-sandbox
+
+  build-padelui-platforms:
+    name: Build PadelUI (${{ matrix.label }})
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: Packages/PadelKit
+    strategy:
+      matrix:
+        include:
+          - destination: "generic/platform=iOS Simulator"
+            label: iOS
+          - destination: "generic/platform=watchOS Simulator"
+            label: watchOS
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+      - name: xcodebuild PadelUI for ${{ matrix.label }}
+        run: xcodebuild build -scheme PadelUI -destination "${{ matrix.destination }}"
