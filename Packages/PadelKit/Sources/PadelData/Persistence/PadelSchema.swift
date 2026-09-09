@@ -1,23 +1,11 @@
 import Foundation
 import SwiftData
 
-/// Throwaway entity for `SchemaSmokeTests`, kept as `PadelSchemaV1`'s only model until Fase 2
-/// adds the real ones — versioned schemas are nearly free to set up now and are the only way to
-/// ship a migration later without a device to test one on.
-@Model
-final class SmokeEntity {
-    var id: UUID
-    var name: String
-
-    init(id: UUID = UUID(), name: String) {
-        self.id = id
-        self.name = name
-    }
-}
-
 enum PadelSchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
-    static var models: [any PersistentModel.Type] { [SmokeEntity.self] }
+    static var models: [any PersistentModel.Type] {
+        [Player.self, MatchParticipant.self, Match.self, MatchSet.self, Session.self]
+    }
 }
 
 enum PadelMigrationPlan: SchemaMigrationPlan {
