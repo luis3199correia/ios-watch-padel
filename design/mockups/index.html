@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>PadelScore — Mockups (contraste corrigido)</title>
+<style>
+:root{
+  --bg:#0B0E14;
+  --surface:#161B24;
+  --surface-2:#1E2530;
+  --border:#2A3241;
+
+  --text-primary:#F5F7FA;   /* era preto -> agora branco/quase-branco */
+  --text-secondary:#98A2B3; /* labels/legendas, já tinha bom contraste */
+  --text-on-accent:#0B0E14; /* texto escuro sobre fundos claros/vivos (mint, amarelo) */
+
+  --mint:#2FE6A8;
+  --blue:#4C8DFF;
+  --blue-bg:#16233B;
+  --orange:#FF9F55;
+  --orange-bg:#3B2416;
+  --red:#FF5C5C;
+  --red-bg:#3A1414;
+  --yellow:#F5C93B;
+
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Segoe UI,Roboto,sans-serif;
+}
+
+body{margin:0;background:#05060a;color:var(--text-primary);padding:32px;}
+h1.page-heading{font-size:20px;margin:0 0 4px;}
+p.page-sub{color:var(--text-secondary);margin:0 0 28px;font-size:14px;}
+
+.gallery{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;}
+.gallery.watch .device-frame{width:220px;}
+
+figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;}
+figcaption{color:var(--text-secondary);font-size:12px;text-align:center;max-width:220px;}
+
+/* ---------- device frames ---------- */
+.device-frame{background:#000;border-radius:44px;padding:10px;box-shadow:0 20px 40px rgba(0,0,0,.5);}
+.device-frame.phone{width:300px;}
+.device-frame.watch{border-radius:46px;width:220px;}
+
+.screen{background:var(--bg);border-radius:34px;overflow:hidden;position:relative;min-height:560px;display:flex;flex-direction:column;}
+.device-frame.watch .screen{min-height:260px;border-radius:38px;}
+
+.notch{width:90px;height:22px;background:#000;border-radius:12px;margin:8px auto 0;}
+
+.content{flex:1;padding:18px 16px;overflow:hidden;}
+.watch .content{padding:14px 12px;}
+
+/* ---------- typography ---------- */
+.page-title{font-size:30px;font-weight:800;color:var(--text-primary);margin:4px 0 2px;}
+.watch .page-title{font-size:20px;}
+.page-subtitle{color:var(--text-secondary);font-size:13px;margin:0 0 14px;}
+.nav-title{text-align:center;color:var(--text-secondary);font-size:13px;flex:1;}
+.section-label{color:var(--text-secondary);font-size:11px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;margin:14px 0 8px;}
+
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 10px;color:var(--text-secondary);}
+.nav-icon{font-size:16px;color:var(--text-secondary);}
+
+/* ---------- primitives ---------- */
+.card{background:var(--surface);border-radius:16px;padding:14px;}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.stack-8{display:flex;flex-direction:column;gap:8px;}
+.stack-12{display:flex;flex-direction:column;gap:12px;}
+
+.fab{width:36px;height:36px;border-radius:50%;background:var(--mint);color:var(--text-on-accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;}
+
+.badge{display:inline-block;background:var(--mint);color:var(--text-on-accent);font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;}
+.badge-muted{display:inline-block;background:var(--surface-2);color:var(--text-secondary);font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;}
+
+.btn-primary{background:var(--mint);color:var(--text-on-accent);border:none;border-radius:14px;font-weight:800;font-size:15px;padding:14px;width:100%;text-align:center;}
+.btn-secondary{background:var(--surface);color:var(--text-primary);border-radius:14px;font-weight:700;font-size:14px;padding:12px;width:100%;text-align:center;}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red);border-radius:14px;font-weight:800;font-size:14px;padding:12px;width:100%;text-align:center;}
+.btn-confirm{background:rgba(47,230,168,.12);color:var(--mint);border:1px solid var(--mint);border-radius:14px;font-weight:800;font-size:14px;padding:12px;width:100%;text-align:center;}
+
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--text-primary);flex-shrink:0;}
+.avatar.a{background:var(--blue);}
+.avatar.b{background:var(--orange);}
+.avatar.muted{background:var(--surface-2);color:var(--text-secondary);}
+
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
+.dot.a{background:var(--blue);}
+.dot.b{background:var(--orange);}
+
+.name-a{color:var(--blue);}
+.name-b{color:var(--orange);}
+
+.calendar-row{display:flex;justify-content:space-between;margin:14px 0;}
+.day{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text-secondary);font-size:12px;}
+.day .num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-primary);font-weight:700;font-size:13px;}
+.day.selected .num{background:var(--mint);color:var(--text-on-accent);}
+.day .marker{width:4px;height:4px;border-radius:50%;background:var(--mint);}
+
+.tab-bar{display:flex;justify-content:space-around;padding:12px 0 6px;border-top:1px solid var(--border);background:var(--surface);}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--text-secondary);}
+.tab.active{color:var(--mint);}
+
+.stat-tile{background:var(--surface);border-radius:14px;padding:10px;flex:1;text-align:left;}
+.stat-value{font-size:20px;font-weight:800;color:var(--text-primary);}
+.stat-value.orange{color:var(--orange);}
+.stat-value.blue{color:var(--blue);}
+.stat-value.yellow{color:var(--yellow);}
+.stat-unit{font-size:12px;font-weight:600;color:var(--text-secondary);}
+.stat-label{color:var(--text-secondary);font-size:11px;margin-top:2px;}
+
+.score-split{border-radius:18px;overflow:hidden;}
+.score-half{padding:20px 14px;text-align:center;}
+.score-half.a{background:var(--blue-bg);}
+.score-half.b{background:var(--orange-bg);}
+.score-half .team-name{font-weight:800;font-size:13px;letter-spacing:.02em;}
+.score-half.a .team-name{color:var(--blue);}
+.score-half.b .team-name{color:var(--orange);}
+.score-half .points{font-size:56px;font-weight:800;color:var(--text-primary);margin:4px 0;}
+.deuce-badge{display:inline-block;background:var(--yellow);color:var(--text-on-accent);font-weight:800;font-size:12px;padding:5px 12px;border-radius:10px;}
+
+.dots-row{display:flex;gap:4px;background:var(--surface);border-radius:12px;padding:10px;flex-wrap:wrap;}
+.dots-row .dot{margin:0;}
+
+.list-row{background:var(--surface);border-radius:14px;padding:14px;}
+.list-row .title{font-weight:800;color:var(--text-primary);font-size:14px;}
+.list-row .sub{color:var(--text-secondary);font-size:12px;}
+.list-row .score{font-weight:800;color:var(--text-primary);font-size:16px;}
+.list-row.win{border-left:3px solid var(--blue);}
+.list-row.loss{border-left:3px solid var(--orange);}
+.list-row.draw{border-left:3px solid var(--surface-2);}
+
+.pill{background:var(--surface-2);color:var(--text-primary);font-weight:700;font-size:13px;padding:6px 12px;border-radius:10px;}
+
+.input-row{background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.input-row .label{color:var(--text-secondary);font-size:13px;display:flex;align-items:center;gap:8px;}
+.input-row .value{color:var(--text-primary);font-weight:700;font-size:14px;}
+
+.team-card{border-radius:14px;padding:12px;flex:1;}
+.team-card.a{background:var(--blue-bg);border:1px solid var(--blue);}
+.team-card.b{background:var(--orange-bg);border:1px dashed var(--orange);}
+.team-card .team-title{font-weight:800;font-size:12px;margin-bottom:8px;}
+.team-card.a .team-title{color:var(--blue);}
+.team-card.b .team-title{color:var(--orange);}
+.team-card .player-name{color:var(--text-primary);font-weight:700;font-size:13px;}
+
+.segment{display:flex;background:var(--surface);border-radius:12px;padding:4px;}
+.segment .opt{flex:1;text-align:center;padding:9px;border-radius:9px;font-weight:700;font-size:13px;color:var(--text-secondary);}
+.segment .opt.selected{background:var(--mint);color:var(--text-on-accent);}
+
+.option-card{border-radius:14px;padding:12px;border:1px solid var(--border);}
+.option-card.selected{background:rgba(47,230,168,.10);border-color:var(--mint);}
+.option-card .opt-title{font-weight:800;font-size:13px;color:var(--text-primary);}
+.option-card .opt-sub{color:var(--text-secondary);font-size:11px;margin-top:2px;}
+.check{color:var(--mint);font-weight:800;}
+
+.note{color:var(--text-secondary);font-size:11px;line-height:1.4;background:var(--surface);border-radius:10px;padding:10px 12px;}
+
+.legend{margin-top:40px;padding:20px;background:var(--surface);border-radius:16px;max-width:640px;}
+.legend h2{margin-top:0;font-size:16px;}
+.legend .swatches{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;}
+.swatch{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);}
+.swatch i{width:16px;height:16px;border-radius:4px;display:inline-block;}
+</style>
+</head>
+<body>
+
+<h1 class="page-heading">PadelScore — Mockups (v2, contraste corrigido)</h1>
+<p class="page-sub">Mesmos ecrãs do PDF original. Fix aplicado: títulos, nomes e valores numéricos que estavam em preto sobre fundo escuro passaram a branco/cinza-claro (<code>--text-primary</code>). Texto sobre fundos claros (mint/amarelo) mantém-se escuro, porque já tinha contraste correto.</p>
+
+<div class="legend">
+  <h2>Tokens de cor</h2>
+  <div class="swatches">
+    <div class="swatch"><i style="background:#0B0E14"></i>bg</div>
+    <div class="swatch"><i style="background:#161B24"></i>surface</div>
+    <div class="swatch"><i style="background:#F5F7FA"></i>text-primary</div>
+    <div class="swatch"><i style="background:#98A2B3"></i>text-secondary</div>
+    <div class="swatch"><i style="background:#2FE6A8"></i>mint (CTA)</div>
+    <div class="swatch"><i style="background:#4C8DFF"></i>blue (equipa A)</div>
+    <div class="swatch"><i style="background:#FF9F55"></i>orange (equipa B)</div>
+    <div class="swatch"><i style="background:#F5C93B"></i>yellow (deuce/estrela)</div>
+    <div class="swatch"><i style="background:#FF5C5C"></i>red (destrutivo)</div>
+  </div>
+</div>
+
+<h2 style="margin-top:40px;">iPhone</h2>
+<div class="gallery">
+
+<!-- 1. Agenda -->
+<figure>
+<div class="device-frame phone"><div class="screen">
+  <div class="notch"></div>
+  <div class="content">
+    <div class="row">
+      <div>
+        <div class="page-title">Agenda</div>
+        <div class="page-subtitle">Setembro 2026</div>
+      </div>
+      <div class="fab">+</div>
+    </div>
+    <div class="calendar-row">
+      <div class="day"><span>Qui</span><span class="num">4</span></div>
+      <div class="day"><span>Sex</span><span class="num">5</span></div>
+      <div class="day"><span>Sáb</span><span class="num">6</span><span class="marker"></span></div>
+      <div class="day selected"><span>Dom</span><span class="num">7</span></div>
+      <div class="day"><span>Seg</span><span class="num">8</span></div>
+      <div class="day"><span>Ter</span><span class="num">9</span></div>
+      <div class="day"><span>Qua</span><span class="num">10</span></div>
+    </div>
+    <div class="section-label">Domingo, 7 Set</div>
+    <div class="card stack-8">
+      <div class="row">
+        <span class="stat-label">🕐 19:00 · Court Central</span>
+        <span class="badge-muted">3 SETS</span>
+      </div>
+      <div class="stack-8" style="gap:4px;">
+        <span style="color:var(--text-primary);font-weight:700;font-size:14px;"><span class="dot a"></span>Luís & Rui</span>
+        <span style="color:var(--text-primary);font-weight:700;font-size:14px;"><span class="dot b"></span>Tiago & André</span>
+      </div>
+      <button class="btn-primary" style="width:auto;padding:10px 20px;align-self:flex-end;">Iniciar</button>
+    </div>
+    <div class="section-label">Terça, 9 Set</div>
+    <div class="card row">
+      <div class="stack-8" style="gap:2px;">
+        <span class="stat-label">20:30 · Padel Norte</span>
+        <span style="color:var(--text-primary);font-weight:700;font-size:14px;">Luís & Rui vs Marta & Sofia</span>
+      </div>
+      <span class="nav-icon">›</span>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab active">📅<span>Agenda</span></div>
+    <div class="tab">📈<span>Histórico</span></div>
+    <div class="tab">👥<span>Jogadores</span></div>
+    <div class="tab">⚙️<span>Ajustes</span></div>
+  </div>
+</div></div>
+<figcaption>1 · Agenda</figcaption>
+</figure>
+
+<!-- 2. Novo Jogo -->
+<figure>
+<div class="device-frame phone"><div class="screen">
+  <div class="notch"></div>
+  <div class="content">
+    <div class="nav-bar"><span class="nav-icon">‹</span><span class="nav-title">Novo Jogo</span><span style="color:var(--mint);font-weight:800;font-size:14px;">Guardar</span></div>
+    <div class="section-label">Quando</div>
+    <div class="stack-8">
+      <div class="input-row"><span class="label">📅 Data</span><span class="value">Dom, 7 Set 2026</span></div>
+      <div class="input-row"><span class="label">🕐 Hora</span><span class="value">19:00</span></div>
+      <div class="input-row"><span class="label">📍 Local</span><span class="value">Court Central</span></div>
+    </div>
+    <div class="section-label">Equipas</div>
+    <div class="row" style="align-items:stretch;">
+      <div class="team-card a">
+        <div class="team-title">EQUIPA A</div>
+        <div class="stack-8"><span class="row" style="justify-content:flex-start;gap:8px;"><span class="avatar a">LC</span><span class="player-name">Luís</span></span>
+        <span class="row" style="justify-content:flex-start;gap:8px;"><span class="avatar a">RS</span><span class="player-name">Rui</span></span></div>
+      </div>
+      <div class="team-card b">
+        <div class="team-title">EQUIPA B</div>
+        <div class="stack-8"><span class="row" style="justify-content:flex-start;gap:8px;"><span class="avatar b">TM</span><span class="player-name">Tiago</span></span>
+        <span style="color:var(--text-secondary);font-size:12px;">+ Adicionar</span></div>
+      </div>
+    </div>
+    <div class="section-label">Formato da partida</div>
+    <div class="segment"><div class="opt selected">Sets</div><div class="opt">Pro-set</div></div>
+    <div class="input-row" style="margin-top:10px;"><span class="label">Melhor de</span>
+      <span class="row" style="gap:10px;width:auto;"><span style="color:var(--text-secondary);">1</span><span class="fab" style="width:26px;height:26px;font-size:13px;">3</span><span style="color:var(--text-secondary);">5</span></span>
+    </div>
+    <div class="section-label">Regra de deuce (40-40)</div>
+    <div class="stack-8">
+      <div class="option-card selected row">
+        <div><div class="opt-title">Star Point</div><div class="opt-sub">Vantagem 2x; à 3ª iguala decide</div></div>
+        <span class="check">✓</span>
+      </div>
+      <div class="option-card"><div class="opt-title">Ponto de Ouro</div><div class="opt-sub">Sudden death imediato a 40-40</div></div>
+    </div>
+    <div style="margin-top:14px;"><button class="btn-primary">Enviar para o Watch</button></div>
+  </div>
+</div></div>
+<figcaption>2 · Novo Jogo</figcaption>
+</figure>
+
+<!-- 3. Historico -->
+<figure>
+<div class="device-frame phone"><div class="screen">
+  <div class="notch"></div>
+  <div class="content">
+    <div class="row"><div class="page-title">Histórico</div><span class="nav-icon">🔍</span></div>
+    <div class="section-label">Setembro 2026</div>
+    <div class="stack-8">
+      <div class="list-row">
+        <div class="row"><span class="badge">MIX</span><span class="sub">Ter, 9 Set · Padel Norte</span><span class="nav-icon">›</span></div>
+        <div class="row" style="margin-top:6px;"><span class="title">5 rondas · 92 min</span><span class="score" style="font-size:13px;">3V · 1E · 1D</span></div>
+      </div>
+      <div class="list-row win">
+        <div class="row"><span class="sub">Qui, 4 Set · Court Central</span><span class="nav-icon">›</span></div>
+        <div class="row" style="margin-top:6px;align-items:flex-end;">
+          <div class="stack-8" style="gap:4px;"><span class="name-a" style="font-weight:800;font-size:13px;">● Luís & Rui</span><span class="name-b" style="font-weight:800;font-size:13px;">● Tiago & André</span></div>
+          <span class="score">6-4, 7-6</span>
+        </div>
+      </div>
+      <div class="list-row loss">
+        <div class="row"><span class="sub">Ter, 2 Set · Padel Norte</span><span class="nav-icon">›</span></div>
+        <div class="row" style="margin-top:6px;align-items:flex-end;">
+          <div class="stack-8" style="gap:4px;"><span class="name-a" style="font-weight:800;font-size:13px;">● Luís & Rui</span><span class="name-b" style="font-weight:800;font-size:13px;">● Marta & Sofia</span></div>
+          <span class="score">4-6, 3-6</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-label">Agosto 2026</div>
+    <div class="list-row win">
+      <div class="row"><span class="sub">Sáb, 30 Ago · Court Central</span><span class="nav-icon">›</span></div>
+      <div class="row" style="margin-top:6px;align-items:flex-end;">
+        <div class="stack-8" style="gap:4px;"><span class="name-a" style="font-weight:800;font-size:13px;">● Luís & Rui</span><span class="name-b" style="font-weight:800;font-size:13px;">● Pedro & João</span></div>
+        <span class="score">9-5</span>
+      </div>
+      <div class="sub" style="margin-top:4px;">Pro-set · Ponto de Ouro</div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab">📅<span>Agenda</span></div>
+    <div class="tab active">📈<span>Histórico</span></div>
+    <div class="tab">👥<span>Jogadores</span></div>
+    <div class="tab">⚙️<span>Ajustes</span></div>
+  </div>
+</div></div>
+<figcaption>3 · Histórico</figcaption>
+</figure>
+
+<!-- 4. Detalhe do jogo -->
+<figure>
+<div class="device-frame phone"><div class="screen">
+  <div class="notch"></div>
+  <div class="content">
+    <div class="nav-bar"><span class="nav-icon">‹</span><span class="nav-title">Qui, 4 Set 2026 · Court Central</span><span class="nav-icon">⤴</span></div>
+    <div class="card stack-8">
+      <div class="row"><span style="font-weight:800;color:var(--text-primary);">👑 Luís & Rui</span><span style="font-weight:800;font-size:20px;color:var(--text-primary);">6</span></div>
+      <div class="row"><span style="font-weight:700;color:var(--text-primary);">Tiago & André</span><span style="font-weight:800;font-size:20px;color:var(--text-primary);">4</span></div>
+      <div style="border-top:1px solid var(--border);"></div>
+      <div class="row" style="gap:8px;justify-content:flex-start;"><span class="pill">6-4</span><span class="pill">7-6(5)</span></div>
+    </div>
+    <div class="section-label">Timeline de pontos</div>
+    <div class="dots-row">
+      <span class="dot a"></span><span class="dot a"></span><span class="dot b"></span><span class="dot b"></span><span class="dot b"></span><span class="dot b"></span><span class="dot a"></span><span class="dot a"></span><span class="dot b"></span><span class="dot a"></span><span class="dot a"></span><span class="dot b"></span><span class="dot a"></span><span class="dot" style="background:var(--yellow);"></span><span class="dot b"></span><span class="dot b"></span><span class="dot a"></span><span class="dot a"></span>
+    </div>
+    <div class="row" style="margin-top:12px;gap:10px;">
+      <div class="stat-tile"><span class="stat-value">58<span class="stat-unit">min</span></span><div class="stat-label">Duração</div></div>
+      <div class="stat-tile"><span class="stat-value">76<span class="stat-unit">pts</span></span><div class="stat-label">Total de pontos</div></div>
+      <div class="stat-tile"><span class="stat-value blue">5<span class="stat-unit">seq.</span></span><div class="stat-label">Melhor sequência</div></div>
+    </div>
+    <div class="section-label">Treino (Apple Watch)</div>
+    <div class="card row">
+      <div><span class="stat-value orange">❤️ 142</span><div class="stat-label">FC média · máx 168 bpm</div></div>
+      <div style="border-left:1px solid var(--border);height:32px;"></div>
+      <div><span class="stat-value yellow">🔥 412</span><div class="stat-label">Calorias ativas</div></div>
+    </div>
+  </div>
+</div></div>
+<figcaption>4 · Detalhe do jogo</figcaption>
+</figure>
+
+<!-- 5. Jogadores -->
+<figure>
+<div class="device-frame phone"><div class="screen">
+  <div class="notch"></div>
+  <div class="content">
+    <div class="row"><div class="page-title">Jogadores</div><div class="fab">+</div></div>
+    <div class="stack-8" style="margin-top:10px;">
+      <div class="card row"><span class="row" style="justify-content:flex-start;gap:10px;"><span class="avatar a">LC</span><span><div style="font-weight:800;color:var(--text-primary);font-size:14px;">Luís Correia</div><div class="stat-label">24 jogos · 71% vitórias</div></span></span><span style="color:var(--yellow);">★</span></div>
+      <div class="card row"><span class="row" style="justify-content:flex-start;gap:10px;"><span class="avatar muted">RS</span><span><div style="font-weight:800;color:var(--text-primary);font-size:14px;">Rui Santos</div><div class="stat-label">18 jogos · 61% vitórias</div></span></span><span class="nav-icon">›</span></div>
+      <div class="card row"><span class="row" style="justify-content:flex-start;gap:10px;"><span class="avatar muted">TM</span><span><div style="font-weight:800;color:var(--text-primary);font-size:14px;">Tiago Marques</div><div class="stat-label">15 jogos · 47% vitórias</div></span></span><span class="nav-icon">›</span></div>
+      <div class="card row"><span class="row" style="justify-content:flex-start;gap:10px;"><span class="avatar muted">MS</span><span><div style="font-weight:800;color:var(--text-primary);font-size:14px;">Marta Sousa</div><div class="stat-label">9 jogos · 78% vitórias</div></span></span><span class="nav-icon">›</span></div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab">📅<span>Agenda</span></div>
+    <div class="tab">📈<span>Histórico</span></div>
+    <div class="tab active">👥<span>Jogadores</span></div>
+    <div class="tab">⚙️<span>Ajustes</span></div>
+  </div>
+</div></div>
+<figcaption>5 · Jogadores</figcaption>
+</figure>
+
+<!-- 11. Nova Sessao -->
+<figure>
+<div class="device-frame phone"><div class="screen">
+  <div class="notch"></div>
+  <div class="content">
+    <div class="nav-bar"><span class="nav-icon">‹</span><span class="nav-title">Nova Sessão</span><span style="color:var(--mint);font-weight:800;font-size:14px;">Guardar</span></div>
+    <div class="segment"><div class="opt">Jogo Normal</div><div class="opt selected">Sessão Mix</div></div>
+    <div class="section-label">A minha equipa</div>
+    <div class="team-card a">
+      <div class="stack-8">
+        <span class="row" style="justify-content:flex-start;gap:8px;"><span class="avatar a">LC</span><span class="player-name">Luís (eu)</span></span>
+        <span class="row" style="justify-content:flex-start;gap:8px;"><span class="avatar a">RS</span><span class="player-name">Rui (parceiro)</span></span>
+      </div>
+    </div>
+    <div class="note">⚠️ Os adversários rodam a cada ronda e aparecem sempre como "Adversário 1" e "Adversário 2" — não é preciso identificá-los.</div>
+    <div class="section-label">Duração</div>
+    <div class="stack-8">
+      <div class="input-row"><span class="label">Sessão (total)</span><span class="value">90 min</span></div>
+      <div class="input-row"><span class="label">Cada ronda</span><span class="value">15 min</span></div>
+    </div>
+    <div class="section-label">Regra de deuce (40-40)</div>
+    <div class="stack-8">
+      <div class="option-card selected row"><div><div class="opt-title">Ponto de Ouro</div><div class="opt-sub">Recomendado no Mix — mais jogos no mesmo tempo</div></div><span class="check">✓</span></div>
+      <div class="option-card"><div class="opt-title">Star Point</div></div>
+      <div class="option-card"><div class="opt-title">Vantagens Clássicas</div></div>
+    </div>
+    <div style="margin-top:14px;"><button class="btn-primary">Iniciar Sessão no Watch</button></div>
+  </div>
+</div></div>
+<figcaption>11 · Nova Sessão (Mix)</figcaption>
+</figure>
+
+<!-- 12. Detalhe sessao Mix -->
+<figure>
+<div class="device-frame phone"><div class="screen">
+  <div class="notch"></div>
+  <div class="content">
+    <div class="nav-bar"><span class="nav-icon">‹</span><span class="nav-title">Ter, 9 Set 2026 · Padel Norte</span><span class="nav-icon">⤴</span></div>
+    <div class="card">
+      <div class="row"><span class="badge">MIX</span><span style="font-weight:800;color:var(--text-primary);">5 rondas · 92 min</span></div>
+      <div class="row" style="margin-top:10px;text-align:center;">
+        <div><div class="stat-value blue">3</div><div class="stat-label">Vitórias</div></div>
+        <div><div class="stat-value" style="color:var(--text-secondary);">1</div><div class="stat-label">Empates</div></div>
+        <div><div class="stat-value orange">1</div><div class="stat-label">Derrotas</div></div>
+        <div><div class="stat-value">19-14</div><div class="stat-label">Jogos totais</div></div>
+      </div>
+    </div>
+    <div class="section-label">Rondas</div>
+    <div class="stack-8">
+      <div class="list-row win row"><span class="title">Ronda 1<div class="sub">vs Adversário 1 &amp; 2</div></span><span class="score" style="color:var(--blue);">4-3</span></div>
+      <div class="list-row win row"><span class="title">Ronda 2<div class="sub">vs Adversário 1 &amp; 2</div></span><span class="score" style="color:var(--blue);">5-2</span></div>
+      <div class="list-row draw row"><span class="title">Ronda 3<div class="sub">vs Adversário 1 &amp; 2 · Empate</div></span><span class="score" style="color:var(--text-secondary);">3-3</span></div>
+      <div class="list-row loss row"><span class="title">Ronda 4<div class="sub">vs Adversário 1 &amp; 2</div></span><span class="score" style="color:var(--orange);">2-4</span></div>
+      <div class="list-row win row"><span class="title">Ronda 5<div class="sub">vs Adversário 1 &amp; 2</div></span><span class="score" style="color:var(--blue);">5-2</span></div>
+    </div>
+    <div class="section-label">Treino (sessão completa)</div>
+    <div class="card row">
+      <div><span class="stat-value orange">❤️ 151</span><div class="stat-label">FC média · máx 179 bpm</div></div>
+      <div style="border-left:1px solid var(--border);height:32px;"></div>
+      <div><span class="stat-value yellow">🔥 638</span><div class="stat-label">Calorias ativas</div></div>
+    </div>
+  </div>
+</div></div>
+<figcaption>12 · Detalhe da sessão Mix</figcaption>
+</figure>
+
+</div>
+
+<h2 style="margin-top:48px;">Apple Watch</h2>
+<div class="gallery watch">
+
+<!-- 6. Watch Jogos -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content stack-12">
+    <div class="page-title">Jogos</div>
+    <div class="card stack-8">
+      <span class="stat-label">Hoje · 19:00</span>
+      <span style="color:var(--text-primary);font-weight:800;font-size:14px;"><span class="dot a"></span>Luís&amp;Rui</span>
+      <span style="color:var(--text-primary);font-weight:800;font-size:14px;"><span class="dot b"></span>Tiago&amp;André</span>
+    </div>
+    <div class="card stack-8">
+      <span class="stat-label">Ter · 20:30</span>
+      <span style="color:var(--text-primary);font-weight:700;font-size:13px;">Luís&amp;Rui vs Marta&amp;Sofia</span>
+    </div>
+    <button class="btn-primary">+ Jogo Rápido</button>
+  </div>
+</div></div>
+<figcaption>6 · Watch: Jogos</figcaption>
+</figure>
+
+<!-- 7. Watch live score -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content" style="padding:0;">
+    <div class="row" style="padding:10px 14px 4px;color:var(--text-primary);font-weight:700;font-size:13px;">
+      <span><span class="dot a"></span>1 sets <span class="dot b"></span>0</span><span>4-3</span>
+    </div>
+    <div class="score-split">
+      <div class="score-half a"><div class="team-name">LUÍS &amp; RUI</div><div class="points">40</div><span class="deuce-badge">STAR POINT</span></div>
+      <div class="score-half b"><div class="points">40</div><div class="team-name">TIAGO &amp; ANDRÉ</div></div>
+    </div>
+  </div>
+</div></div>
+<figcaption>7 · Watch: pontuação ao vivo (já tinha bom contraste)</figcaption>
+</figure>
+
+<!-- 8. Watch Ao Vivo -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content stack-12">
+    <div class="section-label">Ao vivo</div>
+    <div class="stack-8">
+      <span style="font-size:26px;font-weight:800;color:var(--text-primary);">❤️ 138<span class="stat-unit"> bpm</span></span>
+      <span style="font-size:26px;font-weight:800;color:var(--text-primary);">🕐 32<span class="stat-unit">:14</span></span>
+      <span style="font-size:26px;font-weight:800;color:var(--text-primary);">🔥 286<span class="stat-unit"> kcal</span></span>
+    </div>
+  </div>
+</div></div>
+<figcaption>8 · Watch: métricas ao vivo</figcaption>
+</figure>
+
+<!-- 9. Watch Controlos -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content stack-8">
+    <div class="section-label">Controlos</div>
+    <div class="card"><div style="font-weight:800;color:var(--text-primary);">↩ Desfazer</div><div class="stat-label">Último: 40 Tiago&amp;André</div></div>
+    <div class="card"><div style="font-weight:800;color:var(--text-primary);">⏸ Pausar treino</div></div>
+    <button class="btn-danger">■ Terminar jogo</button>
+  </div>
+</div></div>
+<figcaption>9 · Watch: controlos (já tinha bom contraste no botão vermelho)</figcaption>
+</figure>
+
+<!-- 10. Watch resultado -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content stack-12" style="text-align:center;">
+    <div style="font-size:26px;">👑</div>
+    <div style="color:var(--blue);font-weight:800;">Luís &amp; Rui venceram</div>
+    <div class="row" style="justify-content:center;gap:8px;"><span class="pill">6-4</span><span class="pill">7-6</span></div>
+    <div class="row" style="text-align:center;">
+      <div><div class="stat-value">58<span class="stat-unit">min</span></div><div class="stat-label">Duração</div></div>
+      <div><div class="stat-value orange">145<span class="stat-unit">bpm</span></div><div class="stat-label">FC média</div></div>
+      <div><div class="stat-value yellow">412<span class="stat-unit">kcal</span></div><div class="stat-label">Calorias</div></div>
+    </div>
+    <button class="btn-secondary">Concluído</button>
+  </div>
+</div></div>
+<figcaption>10 · Watch: resultado final</figcaption>
+</figure>
+
+<!-- 13. Watch ronda live -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content" style="padding:0;">
+    <div class="row" style="padding:10px 14px 4px;">
+      <span class="badge">RONDA 3</span><span style="color:var(--text-primary);font-weight:700;">2-1</span><span class="stat-label">11:42/15:00</span>
+    </div>
+    <div class="score-split">
+      <div class="score-half a"><div class="team-name">EU &amp; RUI</div><div class="points">30</div></div>
+      <div class="score-half b"><div class="points">15</div><div class="team-name">ADVERSÁRIO 1 &amp; 2</div></div>
+    </div>
+  </div>
+</div></div>
+<figcaption>13 · Watch: ronda Mix ao vivo (já tinha bom contraste)</figcaption>
+</figure>
+
+<!-- 14. Watch ronda controlos -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content stack-8">
+    <div class="section-label">Ronda 3 · Controlos</div>
+    <div class="card"><div style="font-weight:800;color:var(--text-primary);">↩ Desfazer</div></div>
+    <div class="option-card selected"><div class="opt-title" style="color:var(--mint);">✓ Terminar Partida</div><div class="opt-sub">Fecha esta ronda · começa a próxima</div></div>
+    <button class="btn-danger">■ Terminar Sessão<br><span style="font-weight:600;font-size:11px;">Fecha o Mix todo · para o treino</span></button>
+  </div>
+</div></div>
+<figcaption>14 · Watch: controlos da ronda</figcaption>
+</figure>
+
+<!-- 15. Watch ronda concluida -->
+<figure>
+<div class="device-frame watch"><div class="screen">
+  <div class="content stack-12" style="text-align:center;">
+    <div class="section-label">Ronda 3 concluída</div>
+    <div style="color:var(--blue);font-size:20px;">✔</div>
+    <div style="color:var(--blue);font-weight:800;font-size:28px;">4-3</div>
+    <div class="stat-label">Venceste a ronda</div>
+    <div class="card"><span class="stat-label">A preparar</span><div style="color:var(--mint);font-weight:800;">Ronda 4 →</div></div>
+  </div>
+</div></div>
+<figcaption>15 · Watch: ronda concluída</figcaption>
+</figure>
+
+</div>
+
+</body>
+</html>
