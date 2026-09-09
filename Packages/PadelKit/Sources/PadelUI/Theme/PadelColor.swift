@@ -29,11 +29,18 @@ public enum PadelColor {
     public static let yellow = Color(hex: 0xF5C93B)
 }
 
+/// Normalized (0...1) RGB components decoded from a `0xRRGGBB` literal. Split out from
+/// `Color.init(hex:)` so the decoding math is testable without resolving a `Color` value.
+func hexComponents(_ hex: UInt32) -> (red: Double, green: Double, blue: Double) {
+    let r = Double((hex >> 16) & 0xFF) / 255
+    let g = Double((hex >> 8) & 0xFF) / 255
+    let b = Double(hex & 0xFF) / 255
+    return (r, g, b)
+}
+
 extension Color {
     init(hex: UInt32) {
-        let r = Double((hex >> 16) & 0xFF) / 255
-        let g = Double((hex >> 8) & 0xFF) / 255
-        let b = Double(hex & 0xFF) / 255
-        self.init(red: r, green: g, blue: b)
+        let c = hexComponents(hex)
+        self.init(red: c.red, green: c.green, blue: c.blue)
     }
 }
