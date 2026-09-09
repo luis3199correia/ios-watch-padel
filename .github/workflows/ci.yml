@@ -15,8 +15,8 @@ jobs:
         working-directory: Packages/PadelKit
     steps:
       - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -n1)"
+      - name: Xcode version
+        run: xcodebuild -version
       - name: swift test
         run: swift test --disable-sandbox
 
@@ -35,7 +35,7 @@ jobs:
             label: watchOS
     steps:
       - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -n1)"
+      - name: Xcode version
+        run: xcodebuild -version
       - name: xcodebuild PadelUI for ${{ matrix.label }}
         run: xcodebuild build -scheme PadelUI -destination "${{ matrix.destination }}"
