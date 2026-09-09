@@ -28,6 +28,14 @@ public enum PreviewFixtures {
         return engine
     }
 
+    /// A Mix round manually ended with A ahead on games.
+    public static var endedMixRoundWonByA: MatchEngine {
+        var engine = MatchEngine(rules: .standardMix)
+        for _ in 0..<4 { engine.score(.a) } // A wins a game, B wins none
+        engine.endManually()
+        return engine
+    }
+
     /// A Mix round manually ended in a draw.
     public static var drawnMixRound: MatchEngine {
         var engine = MatchEngine(rules: .standardMix)

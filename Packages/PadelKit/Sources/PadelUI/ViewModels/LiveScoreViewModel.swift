@@ -64,4 +64,10 @@ public final class LiveScoreViewModel {
     public func undo() {
         engine.undoLastPoint()
     }
+
+    /// Ends the current Mix round now, based on games won so far. No-op for every other format
+    /// (`MatchEngine.endManually` already guards this) — see decisions.md 8b.
+    public func endRound() {
+        engine.endManually()
+    }
 }
