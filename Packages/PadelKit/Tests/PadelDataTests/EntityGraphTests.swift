@@ -4,7 +4,12 @@ import SwiftData
 import PadelCore
 @testable import PadelData
 
-@Suite("PadelData entity graph")
+// .serialized: each test creates its own in-memory ModelContainer, and SwiftData's
+// container init isn't safe to run concurrently — Swift Testing parallelizing these
+// (its default) reliably crashed the whole process with a signal 5 / PAC trap (CI
+// investigation 2026-09-10: symbolicated backtrace landed on the first #expect in
+// containerBuildsWithRealSchema, with the crashing PC outside every loaded image).
+@Suite("PadelData entity graph", .serialized)
 @MainActor
 struct EntityGraphTests {
 
