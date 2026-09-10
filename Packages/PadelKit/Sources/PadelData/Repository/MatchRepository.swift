@@ -2,8 +2,11 @@ import Foundation
 import SwiftData
 import PadelCore
 
-/// One side's participant slot when scheduling a standalone match.
-public struct ParticipantSlot: Sendable {
+/// One side's participant slot when scheduling a standalone match. Not `Sendable` — it can hold
+/// a `Player`, a SwiftData model confined to its `ModelContext`, so this only ever crosses
+/// synchronously within a single call to `scheduleMatch(...)`, never across a concurrency
+/// boundary.
+public struct ParticipantSlot {
     public let team: Team
     public let displayName: String
     public let position: Int
