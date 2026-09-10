@@ -178,7 +178,7 @@ ser criados, compilados e validados num Mac com Xcode — esta máquina de desen
 
 ---
 
-## Fase 4 — Calibração de campo, heatmap e deteção de pancada 📝 Planeado (desenhado, não implementado)
+## Fase 4 — Calibração de campo, heatmap e deteção de pancada 🚧 Em curso (parte testável-sem-Mac já implementada)
 
 Ideia: calibrar o campo (andar a cada canto + rede), gerar um heatmap do jogo, e opcionalmente
 usar o Watch na mão da raquete para detetar o tipo de pancada (forehand/backhand/smash/volley),
@@ -208,10 +208,10 @@ cruzando zona do campo × tipo de pancada × resultado do ponto.
    para a v1. Isto já entrega o cruzamento pedido: zona × tipo de pancada × quem ganhou o
    ponto, ligado a um `PointEvent` existente.
 
-### Modelo de dados detalhado (proposto)
+### Modelo de dados detalhado
 
-**Em `PadelCore`** (Swift puro, sem CoreLocation/CoreMotion — mantém o motor testável e
-independente de plataforma, seguindo o mesmo princípio do #9 para HealthKit):
+**Em `PadelCore`** ✅ implementado (`Sources/PadelCore/Court/`) — Swift puro, sem
+CoreLocation/CoreMotion (mesmo princípio do #9 para HealthKit), 141/141 testes verdes:
 
 - `GeoPoint { latitude: Double, longitude: Double }` — evita importar `CoreLocation` no motor.
 - `CourtLandmark` (enum): `.cornerNearLeft`, `.cornerNearRight`, `.cornerFarLeft`,
@@ -219,52 +219,68 @@ independente de plataforma, seguindo o mesmo princípio do #9 para HealthKit):
 - `CourtCalibration { points: [CourtLandmark: GeoPoint] }` — os 6 pontos marcados a andar pelo
   campo.
 - `CourtGeometry` — matemática pura que projeta lat/lon para um plano local (aproximação
-  equirretangular, suficiente à escala de um campo), ajusta um retângulo aos 4 cantos
-  calibrados (robusto a ruído do GPS), e mapeia uma amostra `GeoPoint` numa posição
-  normalizada `(x, y) ∈ [0,1]×[0,1]` relativa ao campo. Testável com coordenadas sintéticas,
-  sem qualquer dependência de hardware.
-- `CourtZone` — grelha simplificada derivada de `(x, y)` (proposta: 3 linhas × 2 colunas por
-  lado — rede/meio-campo/fundo × esquerda/direita).
+  equirretangular, suficiente à escala de um campo), ajusta uma base a partir da média dos
+  dois pares de arestas opostas dos 4 cantos calibrados (robusto a ruído do GPS, já que cantos
+  reais nunca formam um retângulo perfeito), e mapeia uma amostra `GeoPoint` numa posição
+  normalizada `(x, y) ∈ [0,1]×[0,1]` relativa ao campo (`clamp`ada se a amostra cair fora do
+  retângulo calibrado). `netPositionAlongLength` localiza a rede ao longo do eixo do
+  comprimento a partir dos 2 postes calibrados, em vez de assumir um ponto médio exato.
+- `CourtZone` — não é um enum plano, mas 3 eixos independentes e combináveis:
+  `CourtSide` (`.a`/`.b`, lado da rede), `CourtDepth` (`.net`/`.baseline`), `CourtColumn`
+  (`.left`/`.right`) — 8 combinações no total, cada eixo extensível sozinho no futuro (ex: um
+  3º nível de profundidade).
 - `ShotType` (enum): `.forehand`, `.backhand`, `.smash`, `.volley`.
 - `MotionSample` — vetor de características resumido de um swing: pico de aceleração, taxa de
-  rotação, direção predominante, duração do gesto, timestamp do impacto. (A extração destas
-  características a partir de `CMDeviceMotion` bruto é trabalho de Fase 4/hardware; a struct e
-  a lógica que a consome são puras e testáveis já.)
-- `StrokeProfile { player: UUID, shotType: ShotType, referenceSamples: [MotionSample] }` — o
-  "padrão" pessoal de cada jogador por tipo de pancada, construído no setup.
-- `StrokeClassifier` — dado um `MotionSample` novo, compara-o (distância/nearest-neighbor) aos
-  `StrokeProfile` do jogador; se o jogador ainda não fez o setup para um tipo de pancada, usa um
-  **perfil global/genérico por omissão** (os limiares fixos "clássicos") em vez de recusar
-  classificar — a funcionalidade funciona desde o primeiro uso e melhora depois de cada
-  jogador se calibrar.
+  rotação, direção predominante, duração do gesto — com uma métrica de distância própria
+  (escalada por eixo, com wraparound correto no ângulo 0°/360°). (A extração destas
+  características a partir de `CMDeviceMotion` bruto continua a ser trabalho de Fase
+  4/hardware; a struct e a lógica que a consome já são puras e testadas.)
+- `StrokeProfile { shotType: ShotType, referenceSamples: [MotionSample] }` — o "padrão"
+  pessoal de cada jogador por tipo de pancada, construído no setup; a distância a uma amostra
+  nova é a do vizinho mais próximo entre as amostras de referência, não a média.
+- `StrokeClassifier` — dado um `MotionSample` novo, compara-o (nearest-neighbor) aos
+  `StrokeProfile` fornecidos; qualquer tipo de pancada sem perfil pessoal cai automaticamente
+  no **`globalDefaultProfiles`** (limiares fixos "clássicos", um ponto de partida a afinar
+  quando houver swings reais) — a funcionalidade funciona desde o primeiro uso.
+- `ShotHeatmapAggregator`/`ZoneCount` — conta ocorrências por `CourtZone`, puro, sem SwiftData;
+  é isto que a visualização do heatmap em `PadelUI` (por construir) vai consumir.
 
-**Em `PadelData`** (seguindo o mesmo padrão de entidade + repositório já estabelecido):
+**Em `PadelData`** ✅ implementado (`Sources/PadelData/Models/` + `Repository/`) — mesmo padrão
+de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
 
 - Entidade `Shot`: `id`, `pointEventID: UUID` (liga ao `PointEvent` que este lance decidiu),
-  `zone: CourtZone`, `rawSample: GeoPoint` (guardado sempre, ver risco acima), `strokeType:
-  ShotType?`, `strokeConfidence: Double?`, `team: Team`, `recordedAt: Date`.
-- Entidade `CourtCalibrationRecord`: persiste um `CourtCalibration` associado a um local/campo
-  (para não ter de recalibrar sempre que se joga no mesmo court).
-- Entidade `StrokeProfileRecord`: persiste os `StrokeProfile` de cada `Player`.
-- `ShotRepository`/`CourtCalibrationRepository`/`StrokeProfileRepository` — CRUD + queries,
-  espelhando `PlayerRepository`/`MatchRepository`/`SessionRepository`.
+  `zone: CourtZone` (JSON), `rawSample: GeoPoint` (JSON, guardado sempre — ver risco acima),
+  `strokeType: ShotType?`, `strokeConfidence: Double?`, `team: Team`, `recordedAt: Date`,
+  `match: Match?` (cascade, `Match.shots` é o inverso).
+- Entidade `CourtCalibrationRecord`: `location: String` (mesma convenção de `Match`/`Session`),
+  `calibration: CourtCalibration` (JSON) — uma por `location`, reutilizada entre jogos no mesmo
+  campo.
+- Entidade `StrokeProfileRecord`: `shotType`, `referenceSamples: [MotionSample]` (JSON),
+  `player: Player?` (cascade, `Player.strokeProfiles` é o inverso).
+- `ShotRepository` (`record`/`shots(for:)`), `CourtCalibrationRepository`
+  (`save`/`find(location:)`), `StrokeProfileRepository` (`save`/`find`/`profiles(for:)` — estes
+  dois últimos lêem/escrevem via `Player.strokeProfiles` diretamente, nunca um
+  `FetchDescriptor`, mesmo padrão de `ParticipantRoster`).
 
-**Em `PadelUI`** (com dados sintéticos em testes/previews, como todo o resto):
+**Em `PadelUI`** 📝 por construir (com dados sintéticos em testes/previews, como todo o resto):
 
 - Ecrã/fluxo de calibração do campo (Watch): "vai ao canto perto-esquerda e toca", repetido
   para os 6 pontos.
 - Ecrã/fluxo de setup de pancadas (Watch): "faz 3 forehands", repetido para os 4 tipos.
 - Visualização de heatmap (iPhone, `Canvas` SwiftUI): pontos/zonas sobre um diagrama do campo,
-  coloridos por densidade e/ou por resultado do ponto (ganho/perdido).
+  coloridos por densidade e/ou por resultado do ponto (ganho/perdido) — consome
+  `ShotHeatmapAggregator.aggregate` já implementado.
 
 ### O que dá para construir e testar já (sem Mac, via `swift test`/CI)
 
-- `GeoPoint`, `CourtLandmark`, `CourtCalibration`, `CourtGeometry` (com coordenadas sintéticas).
-- `CourtZone`, `ShotType`, `MotionSample`, `StrokeProfile`, `StrokeClassifier` (com vetores de
-  características sintéticos).
-- As entidades e repositórios de `PadelData` (`Shot`, `CourtCalibrationRecord`,
+- ✅ `GeoPoint`, `CourtLandmark`, `CourtCalibration`, `CourtGeometry`, `CourtZone` (testado com
+  coordenadas sintéticas).
+- ✅ `ShotType`, `MotionSample`, `StrokeProfile`, `StrokeClassifier`, `ShotHeatmapAggregator`
+  (testado com vetores de características sintéticos).
+- ✅ As entidades e repositórios de `PadelData` (`Shot`, `CourtCalibrationRecord`,
   `StrokeProfileRecord` + os repositórios correspondentes).
-- A visualização do heatmap em `PadelUI`, alimentada por dados sintéticos.
+- 📝 A visualização do heatmap em `PadelUI`, alimentada por dados sintéticos — ainda por
+  construir.
 
 ### O que fica bloqueado até Mac + Apple Watch físico
 
@@ -280,9 +296,11 @@ independente de plataforma, seguindo o mesmo princípio do #9 para HealthKit):
 ## Onde estamos agora (2026-09-10)
 
 Fases 0 e 2 estão **concluídas e validadas em CI**. Fase 3 está **bloqueada** — precisa de Mac,
-e é o único caminho para desbloquear os ecrãs 2/11 e ligar tudo a dados reais. Fase 4 está
-**desenhada e documentada** (este ficheiro), pronta a começar a implementação da parte
-testável-sem-Mac assim que houver luz verde.
+e é o único caminho para desbloquear os ecrãs 2/11 e ligar tudo a dados reais. Fase 4 tem a
+parte testável-sem-Mac **implementada e validada em CI** (geometria/classificador em
+`PadelCore`, entidades/repositórios em `PadelData` — 141/141 testes, 4/4 builds `xcodebuild`,
+sem avisos); falta só a visualização de heatmap em `PadelUI` (dados sintéticos) para fechar
+tudo o que dá para fazer sem Mac + Watch físico.
 
 ---
 
