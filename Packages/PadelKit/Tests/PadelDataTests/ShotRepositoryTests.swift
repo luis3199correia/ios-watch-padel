@@ -54,11 +54,11 @@ struct ShotRepositoryTests {
 
         let first = ShotRepository.record(
             pointEventID: UUID(), zone: zone, rawSample: sample, strokeType: nil, strokeConfidence: nil,
-            team: .a, at: Date(timeIntervalSince1970: 1_000), for: match, in: context
+            team: .a, for: match, at: Date(timeIntervalSince1970: 1_000), in: context
         )
         let second = ShotRepository.record(
             pointEventID: UUID(), zone: zone, rawSample: sample, strokeType: nil, strokeConfidence: nil,
-            team: .b, at: Date(timeIntervalSince1970: 2_000), for: match, in: context
+            team: .b, for: match, at: Date(timeIntervalSince1970: 2_000), in: context
         )
 
         #expect(ShotRepository.shots(for: match).map(\.id) == [first.id, second.id])
