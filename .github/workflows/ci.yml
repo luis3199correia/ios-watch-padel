@@ -21,18 +21,19 @@ jobs:
         id: swifttest
         run: swift test --disable-sandbox
         continue-on-error: true
-      - name: Dump crash reports on failure
+      - name: Re-run under lldb to capture a backtrace of the trap
         if: steps.swifttest.outcome == 'failure'
         run: |
-          shopt -s nullglob
-          reports=(~/Library/Logs/DiagnosticReports/*.ips ~/Library/Logs/DiagnosticReports/*.crash)
-          if [ ${#reports[@]} -eq 0 ]; then
-            echo "No crash reports found in ~/Library/Logs/DiagnosticReports"
-          fi
-          for f in "${reports[@]}"; do
-            echo "=== $f ==="
-            cat "$f"
-          done
+          set -x
+          BIN_PATH=$(swift build --build-tests --disable-sandbox --show-bin-path)
+          BUNDLE="$BIN_PATH/PadelKitPackageTests.xctest/Contents/MacOS/PadelKitPackageTests"
+          HELPER="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper"
+          lldb --batch \
+            -o "process handle SIGTRAP -n true -p true -s true" \
+            -o "run" \
+            -o "bt all" \
+            -o "quit" \
+            -- "$HELPER" --test-bundle-path "$BUNDLE" --disable-sandbox "$BUNDLE" --testing-library swift-testing
       - name: Fail job if swift test failed
         if: steps.swifttest.outcome == 'failure'
         run: exit 1
