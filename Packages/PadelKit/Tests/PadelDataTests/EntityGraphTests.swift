@@ -15,7 +15,7 @@ struct EntityGraphTests {
 
     @Test("An in-memory container builds with all five real models and can fetch each")
     func containerBuildsWithRealSchema() throws {
-        let context = try PadelModelContainer.make(inMemory: true).mainContext
+        let context = ModelContext(try PadelModelContainer.make(inMemory: true))
         #expect(try context.fetch(FetchDescriptor<Player>()).isEmpty)
         #expect(try context.fetch(FetchDescriptor<MatchParticipant>()).isEmpty)
         #expect(try context.fetch(FetchDescriptor<Match>()).isEmpty)
@@ -25,7 +25,7 @@ struct EntityGraphTests {
 
     @Test("Deleting a Session cascades to delete its rounds")
     func deletingSessionCascadesToRounds() throws {
-        let context = try PadelModelContainer.make(inMemory: true).mainContext
+        let context = ModelContext(try PadelModelContainer.make(inMemory: true))
         let session = Session(targetDuration: 90 * 60, rules: .standardMix)
         let round = Match(roundIndex: 0, rules: .standardMix)
         context.insert(session)
@@ -42,7 +42,7 @@ struct EntityGraphTests {
 
     @Test("Deleting a Player nullifies the participant's player reference, keeping the match and displayName")
     func deletingPlayerNullifiesParticipantReference() throws {
-        let context = try PadelModelContainer.make(inMemory: true).mainContext
+        let context = ModelContext(try PadelModelContainer.make(inMemory: true))
         let player = Player(name: "Luís")
         let match = Match(rules: .standardSets)
         let participant = MatchParticipant(team: .a, displayName: "Luís", position: 0, player: player)
@@ -64,7 +64,7 @@ struct EntityGraphTests {
 
     @Test("A Mix round's anonymous opponents have no Player, only a displayName")
     func anonymousOpponentsHaveNoPlayerRecord() throws {
-        let context = try PadelModelContainer.make(inMemory: true).mainContext
+        let context = ModelContext(try PadelModelContainer.make(inMemory: true))
         let round = Match(rules: .standardMix)
         let opponent1 = MatchParticipant(team: .b, displayName: "Adversário 1", position: 0)
         let opponent2 = MatchParticipant(team: .b, displayName: "Adversário 2", position: 1)

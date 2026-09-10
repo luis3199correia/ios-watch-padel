@@ -21,7 +21,7 @@ struct DiagnosticContainerTests {
     func bareContainerFetches() throws {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: DiagnosticPing.self, configurations: configuration)
-        let context = container.mainContext
+        let context = ModelContext(container)
         #expect(try context.fetch(FetchDescriptor<DiagnosticPing>()).isEmpty)
     }
 }
