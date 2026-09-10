@@ -46,12 +46,9 @@ public final class Match {
     public var healthKitWorkoutUUID: UUID?
 
     public var session: Session?
-    // No explicit `inverse:` on either relationship below — `MatchSet`/`MatchParticipant` each
-    // have exactly one `Match?`-typed property (`match`), so SwiftData infers the inverse
-    // unambiguously by type.
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \MatchSet.match)
     public var sets: [MatchSet] = []
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \MatchParticipant.match)
     public var participants: [MatchParticipant] = []
 
     public init(id: UUID = UUID(), location: String = "", roundIndex: Int = 0, rules: MatchRules, scheduledAt: Date? = nil) {

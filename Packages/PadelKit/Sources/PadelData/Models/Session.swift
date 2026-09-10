@@ -25,13 +25,10 @@ public final class Session {
     public var workoutActivityTypeRaw: UInt?
     public var healthKitWorkoutUUID: UUID?
 
-    // No explicit `inverse:` on either relationship below — `Match`/`MatchParticipant` each have
-    // exactly one `Session?`-typed property (`session`), so SwiftData infers the inverse
-    // unambiguously by type.
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \Match.session)
     public var rounds: [Match] = []
     /// "My team" — 2 real-`Player` participants, created once and shared across every round.
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \MatchParticipant.session)
     public var lineup: [MatchParticipant] = []
 
     public init(

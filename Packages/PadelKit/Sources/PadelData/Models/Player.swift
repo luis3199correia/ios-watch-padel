@@ -10,9 +10,7 @@ public final class Player {
 
     /// Deleting a `Player` nullifies this, not the `MatchParticipant` rows themselves — history
     /// stays readable (the participant's `displayName` survives) even after the player is gone.
-    /// No explicit `inverse:` — `MatchParticipant` has exactly one `Player?`-typed property
-    /// (`player`), so SwiftData infers the inverse unambiguously by type.
-    @Relationship(deleteRule: .nullify)
+    @Relationship(deleteRule: .nullify, inverse: \MatchParticipant.player)
     public var participations: [MatchParticipant] = []
 
     public init(id: UUID = UUID(), name: String, isMe: Bool = false, createdAt: Date = .now) {
