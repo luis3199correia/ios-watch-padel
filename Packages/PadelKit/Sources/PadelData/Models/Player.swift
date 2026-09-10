@@ -13,6 +13,12 @@ public final class Player {
     @Relationship(deleteRule: .nullify, inverse: \MatchParticipant.player)
     public var participations: [MatchParticipant] = []
 
+    /// Fase 4: this player's personal per-`ShotType` swing calibration. Deleting the player
+    /// deletes their calibration too — unlike `participations`, this is personal setup data
+    /// with no standalone meaning once the player is gone.
+    @Relationship(deleteRule: .cascade, inverse: \StrokeProfileRecord.player)
+    public var strokeProfiles: [StrokeProfileRecord] = []
+
     public init(id: UUID = UUID(), name: String, isMe: Bool = false, createdAt: Date = .now) {
         self.id = id
         self.name = name

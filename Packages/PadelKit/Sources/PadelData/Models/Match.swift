@@ -50,6 +50,10 @@ public final class Match {
     public var sets: [MatchSet] = []
     @Relationship(deleteRule: .cascade, inverse: \MatchParticipant.match)
     public var participants: [MatchParticipant] = []
+    /// Fase 4: one `Shot` per point, the decisive lance that ended it (not the full rally —
+    /// see `docs/roadmap.md`). Cascades with the match, same as `sets`/`participants`.
+    @Relationship(deleteRule: .cascade, inverse: \Shot.match)
+    public var shots: [Shot] = []
 
     public init(id: UUID = UUID(), location: String = "", roundIndex: Int = 0, rules: MatchRules, scheduledAt: Date? = nil) {
         self.id = id
