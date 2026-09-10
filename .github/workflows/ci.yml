@@ -18,7 +18,24 @@ jobs:
       - name: Xcode version
         run: xcodebuild -version
       - name: swift test
+        id: swifttest
         run: swift test --disable-sandbox
+        continue-on-error: true
+      - name: Dump crash reports on failure
+        if: steps.swifttest.outcome == 'failure'
+        run: |
+          shopt -s nullglob
+          reports=(~/Library/Logs/DiagnosticReports/*.ips ~/Library/Logs/DiagnosticReports/*.crash)
+          if [ ${#reports[@]} -eq 0 ]; then
+            echo "No crash reports found in ~/Library/Logs/DiagnosticReports"
+          fi
+          for f in "${reports[@]}"; do
+            echo "=== $f ==="
+            cat "$f"
+          done
+      - name: Fail job if swift test failed
+        if: steps.swifttest.outcome == 'failure'
+        run: exit 1
 
   build-platforms:
     name: Build ${{ matrix.scheme }} (${{ matrix.label }})
