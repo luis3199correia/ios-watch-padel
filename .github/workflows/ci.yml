@@ -18,25 +18,9 @@ jobs:
       - name: Xcode version
         run: xcodebuild -version
       - name: swift test
-        id: swifttest
         run: swift test --disable-sandbox
-        continue-on-error: true
-      - name: Re-run under lldb to capture a backtrace of the trap
-        if: steps.swifttest.outcome == 'failure'
-        run: |
-          set -x
-          BIN_PATH=$(swift build --build-tests --disable-sandbox --show-bin-path)
-          BUNDLE="$BIN_PATH/PadelKitPackageTests.xctest/Contents/MacOS/PadelKitPackageTests"
-          HELPER="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper"
-          lldb --batch \
-            -o "process handle SIGTRAP -n true -p true -s true" \
-            -o "run" \
-            -o "bt all" \
-            -o "quit" \
-            -- "$HELPER" --test-bundle-path "$BUNDLE" --disable-sandbox "$BUNDLE" --testing-library swift-testing
-      - name: Fail job if swift test failed
-        if: steps.swifttest.outcome == 'failure'
-        run: exit 1
+        env:
+          SWIFT_BACKTRACE: enable=yes,cache=no,demangle=yes,symbolicate=full
 
   build-platforms:
     name: Build ${{ matrix.scheme }} (${{ matrix.label }})
