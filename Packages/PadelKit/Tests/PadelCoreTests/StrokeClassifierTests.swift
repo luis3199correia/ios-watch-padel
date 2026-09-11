@@ -45,6 +45,12 @@ struct StrokeProfileDistanceTests {
 @Suite("StrokeClassifier")
 struct StrokeClassifierTests {
 
+    @Test("Every ShotType has a global default profile")
+    func everyShotTypeHasGlobalDefault() {
+        let coveredTypes = Set(StrokeClassifier.globalDefaultProfiles.map(\.shotType))
+        #expect(coveredTypes == Set(ShotType.allCases))
+    }
+
     @Test("An exact match to a global default profile classifies as that stroke with full confidence")
     func exactMatchToGlobalDefault() {
         for defaultProfile in StrokeClassifier.globalDefaultProfiles {

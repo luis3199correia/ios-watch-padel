@@ -33,6 +33,27 @@ public enum StrokeClassifier {
         StrokeProfile(shotType: .volley, referenceSamples: [
             MotionSample(peakAcceleration: 1.2, peakRotationRate: 3, duration: 0.12, directionDegrees: 30),
         ]),
+        StrokeProfile(shotType: .bandeja, referenceSamples: [
+            MotionSample(peakAcceleration: 3.0, peakRotationRate: 5, duration: 0.3, directionDegrees: 10),
+        ]),
+        StrokeProfile(shotType: .vibora, referenceSamples: [
+            MotionSample(peakAcceleration: 3.5, peakRotationRate: 8, duration: 0.22, directionDegrees: 5),
+        ]),
+        StrokeProfile(shotType: .serve, referenceSamples: [
+            MotionSample(peakAcceleration: 1.8, peakRotationRate: 4, duration: 0.3, directionDegrees: 60),
+        ]),
+        StrokeProfile(shotType: .bajada, referenceSamples: [
+            MotionSample(peakAcceleration: 2.0, peakRotationRate: 4.5, duration: 0.28, directionDegrees: 200),
+        ]),
+        StrokeProfile(shotType: .rulo, referenceSamples: [
+            MotionSample(peakAcceleration: 2.8, peakRotationRate: 7, duration: 0.26, directionDegrees: 330),
+        ]),
+        StrokeProfile(shotType: .chiquita, referenceSamples: [
+            MotionSample(peakAcceleration: 1.0, peakRotationRate: 2, duration: 0.15, directionDegrees: 40),
+        ]),
+        StrokeProfile(shotType: .lob, referenceSamples: [
+            MotionSample(peakAcceleration: 1.5, peakRotationRate: 2.5, duration: 0.35, directionDegrees: 80),
+        ]),
     ]
 
     /// Classifies `sample` against `profiles` (one player's calibrated profiles — typically at

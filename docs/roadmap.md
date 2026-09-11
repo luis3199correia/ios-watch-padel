@@ -105,9 +105,9 @@ app, Fase 3 — é território de settings/entitlements, `PadelUI` não o possui
 
 **Nota**: os ecrãs 16-19 (mockups 2026-09-10/11) mostram 11 tipos de pancada — forehand, backhand,
 volley, bandeja, víbora, smash, serviço, bajada (saída de vidro), rulo, chiquita, balão (lob).
-O `ShotType` já implementado em `PadelCore` (`Sources/PadelCore/Court/ShotType.swift`) só tem
-4 casos (`forehand`, `backhand`, `smash`, `volley`) — falta estender para os 11 quando as views
-SwiftUI destes ecrãs forem construídas.
+O `ShotType` em `PadelCore` (`Sources/PadelCore/Court/ShotType.swift`) já tem os 11 casos
+(`.serve` para "serviço", `.lob` para "balão"), com perfil por omissão sintético para cada um em
+`StrokeClassifier.globalDefaultProfiles` — falta só construir as views SwiftUI destes ecrãs.
 
 ---
 
@@ -191,7 +191,7 @@ ser criados, compilados e validados num Mac com Xcode — esta máquina de desen
 ## Fase 4 — Calibração de campo, heatmap e deteção de pancada 🚧 Em curso (parte testável-sem-Mac já implementada)
 
 Ideia: calibrar o campo (andar a cada canto + rede), gerar um heatmap do jogo, e opcionalmente
-usar o Watch na mão da raquete para detetar o tipo de pancada (forehand/backhand/smash/volley),
+usar o Watch na mão da raquete para detetar o tipo de pancada (11 tipos — ver `ShotType` abaixo),
 cruzando zona do campo × tipo de pancada × resultado do ponto.
 
 ### Decisões confirmadas com o utilizador (2026-09-10)
@@ -221,7 +221,7 @@ cruzando zona do campo × tipo de pancada × resultado do ponto.
 ### Modelo de dados detalhado
 
 **Em `PadelCore`** ✅ implementado (`Sources/PadelCore/Court/`) — Swift puro, sem
-CoreLocation/CoreMotion (mesmo princípio do #9 para HealthKit), 141/141 testes verdes:
+CoreLocation/CoreMotion (mesmo princípio do #9 para HealthKit), todos os testes verdes em CI:
 
 - `GeoPoint { latitude: Double, longitude: Double }` — evita importar `CoreLocation` no motor.
 - `CourtLandmark` (enum): `.cornerNearLeft`, `.cornerNearRight`, `.cornerFarLeft`,
@@ -239,7 +239,9 @@ CoreLocation/CoreMotion (mesmo princípio do #9 para HealthKit), 141/141 testes 
   `CourtSide` (`.a`/`.b`, lado da rede), `CourtDepth` (`.net`/`.baseline`), `CourtColumn`
   (`.left`/`.right`) — 8 combinações no total, cada eixo extensível sozinho no futuro (ex: um
   3º nível de profundidade).
-- `ShotType` (enum): `.forehand`, `.backhand`, `.smash`, `.volley`.
+- `ShotType` (enum, 11 casos): `.forehand`, `.backhand`, `.smash`, `.volley`, `.bandeja`,
+  `.vibora`, `.serve`, `.bajada`, `.rulo`, `.chiquita`, `.lob`. `StrokeClassifier.globalDefaultProfiles`
+  tem um perfil por omissão sintético para cada um dos 11.
 - `MotionSample` — vetor de características resumido de um swing: pico de aceleração, taxa de
   rotação, direção predominante, duração do gesto — com uma métrica de distância própria
   (escalada por eixo, com wraparound correto no ângulo 0°/360°). (A extração destas
@@ -276,7 +278,7 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
 
 - Ecrã/fluxo de calibração do campo (Watch): "vai ao canto perto-esquerda e toca", repetido
   para os 6 pontos.
-- Ecrã/fluxo de setup de pancadas (Watch): "faz 3 forehands", repetido para os 4 tipos.
+- Ecrã/fluxo de setup de pancadas (Watch): "faz 3 forehands", repetido para os 11 tipos.
 - Visualização de heatmap (iPhone, `Canvas` SwiftUI): pontos/zonas sobre um diagrama do campo,
   coloridos por densidade e/ou por resultado do ponto (ganho/perdido) — consome
   `ShotHeatmapAggregator.aggregate` já implementado.
@@ -303,14 +305,14 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
 
 ---
 
-## Onde estamos agora (2026-09-10)
+## Onde estamos agora (2026-09-11)
 
 Fases 0 e 2 estão **concluídas e validadas em CI**. Fase 3 está **bloqueada** — precisa de Mac,
 e é o único caminho para desbloquear os ecrãs 2/11 e ligar tudo a dados reais. Fase 4 tem a
 parte testável-sem-Mac **implementada e validada em CI** (geometria/classificador em
-`PadelCore`, entidades/repositórios em `PadelData` — 141/141 testes, 4/4 builds `xcodebuild`,
-sem avisos); falta só a visualização de heatmap em `PadelUI` (dados sintéticos) para fechar
-tudo o que dá para fazer sem Mac + Watch físico.
+`PadelCore` — `ShotType` já com os 11 tipos de pancada, entidades/repositórios em `PadelData`);
+falta ainda construir em `PadelUI` (dados sintéticos) as views de calibração de campo/pancadas
+e a visualização de heatmap, para fechar tudo o que dá para fazer sem Mac + Watch físico.
 
 ---
 
