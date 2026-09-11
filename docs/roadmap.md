@@ -276,7 +276,7 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
   dois últimos lêem/escrevem via `Player.strokeProfiles` diretamente, nunca um
   `FetchDescriptor`, mesmo padrão de `ParticipantRoster`).
 
-**Em `PadelUI`** — parte ✅ implementada (com dados sintéticos em testes/previews, como todo o resto):
+**Em `PadelUI`** ✅ implementado (com dados sintéticos em testes/previews, como todo o resto):
 
 - ✅ Ecrã/fluxo de calibração do campo (Watch, ecrãs 16/17): `CourtCalibrationViewModel`
   (`ViewModels/`) percorre os 6 `CourtLandmark`, `CourtCalibrationScreen`/
@@ -288,9 +288,13 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
   seguem o mesmo padrão de closure (`onRecord`) para o `MotionSample` real do CoreMotion.
 - Nomes em português dos dois enums vivem em `Formatting/CalibrationLabels.swift` (mesmo padrão
   de `MatchLabels`, decisions.md #9 regra 6).
-- 📝 Por construir: visualização de heatmap (iPhone, `Canvas` SwiftUI) — pontos/zonas sobre um
-  diagrama do campo, coloridos por densidade e/ou por resultado do ponto (ganho/perdido) —
-  consome `ShotHeatmapAggregator.aggregate` já implementado.
+- ✅ Visualização de heatmap (iPhone): `CourtHeatmapView` (`Components/`) desenha um diagrama do
+  campo em `Canvas`, 4 linhas × 2 colunas (as 8 combinações de `CourtZone`), sombreado por
+  densidade — consome `ShotHeatmapAggregator.aggregate` já implementado. O layout/matemática de
+  intensidade está isolado em `Formatting/CourtHeatmapLayout.swift` (testável sem SwiftUI, mesmo
+  padrão de `PointTimelineBuilder`/`PointTimelineDots`). Coloração por resultado do ponto
+  (ganho/perdido) fica por fazer — precisa de correlacionar `Shot.team` com o vencedor do
+  `PointEvent`, trabalho do composition root (Fase 3).
 
 ### O que dá para construir e testar já (sem Mac, via `swift test`/CI)
 
@@ -301,8 +305,7 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
 - ✅ As entidades e repositórios de `PadelData` (`Shot`, `CourtCalibrationRecord`,
   `StrokeProfileRecord` + os repositórios correspondentes).
 - ✅ Os ecrãs/view models de calibração de campo e de pancadas em `PadelUI` (ver acima).
-- 📝 A visualização do heatmap em `PadelUI`, alimentada por dados sintéticos — ainda por
-  construir.
+- ✅ A visualização de heatmap em `PadelUI` (`CourtHeatmapView`), alimentada por dados sintéticos.
 
 ### O que fica bloqueado até Mac + Apple Watch físico
 
@@ -318,12 +321,13 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
 ## Onde estamos agora (2026-09-11)
 
 Fases 0 e 2 estão **concluídas e validadas em CI**. Fase 3 está **bloqueada** — precisa de Mac,
-e é o único caminho para desbloquear os ecrãs 2/11 e ligar tudo a dados reais. Fase 4 tem a
-parte testável-sem-Mac **implementada e validada em CI** (geometria/classificador em
-`PadelCore` — `ShotType` já com os 11 tipos de pancada, entidades/repositórios em `PadelData`,
-e agora também os ecrãs/view models de calibração de campo e de pancadas em `PadelUI`); falta
-só a visualização de heatmap em `PadelUI` (dados sintéticos) para fechar tudo o que dá para
-fazer sem Mac + Watch físico.
+e é o único caminho para desbloquear os ecrãs 2/11 e ligar tudo a dados reais. Fase 4 tem
+**tudo o que dá para fazer sem Mac + Watch físico implementado e validado em CI**: geometria/
+classificador em `PadelCore` (`ShotType` com os 11 tipos de pancada), entidades/repositórios em
+`PadelData`, e em `PadelUI` os ecrãs/view models de calibração de campo e de pancadas mais a
+visualização de heatmap (`CourtHeatmapView`). O que resta em Fase 4 (captura real de
+CoreLocation/CoreMotion, coloração do heatmap por resultado do ponto) só é possível com Mac +
+Watch físico.
 
 ---
 
