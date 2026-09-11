@@ -44,7 +44,7 @@ Packages/PadelKit/          Swift Package partilhado entre iOS e watchOS
 PadelScore/                 Target da app iOS (a criar no Xcode, Fase 3)
 PadelScore Watch App/       Target da app watchOS (a criar no Xcode, Fase 3)
 docs/                       Este ficheiro + decisions.md
-design/mockups/             Galeria HTML com os 15 ecrãs desenhados
+design/mockups/             Galeria HTML com os 19 ecrãs desenhados
 ```
 
 ---
@@ -190,7 +190,7 @@ ser criados, compilados e validados num Mac com Xcode — esta máquina de desen
 
 ---
 
-## Fase 4 — Calibração de campo, heatmap e deteção de pancada 🚧 Em curso (parte testável-sem-Mac já implementada)
+## Fase 4 — Calibração de campo, heatmap e deteção de pancada 🚧 Em curso (parte testável-sem-Mac ✅ concluída)
 
 Ideia: calibrar o campo (andar a cada canto + rede), gerar um heatmap do jogo, e opcionalmente
 usar o Watch na mão da raquete para detetar o tipo de pancada (11 tipos — ver `ShotType` abaixo),
@@ -257,7 +257,7 @@ CoreLocation/CoreMotion (mesmo princípio do #9 para HealthKit), todos os testes
   no **`globalDefaultProfiles`** (limiares fixos "clássicos", um ponto de partida a afinar
   quando houver swings reais) — a funcionalidade funciona desde o primeiro uso.
 - `ShotHeatmapAggregator`/`ZoneCount` — conta ocorrências por `CourtZone`, puro, sem SwiftData;
-  é isto que a visualização do heatmap em `PadelUI` (por construir) vai consumir.
+  é isto que a visualização do heatmap em `PadelUI` (`CourtHeatmapView`, já construída) consome.
 
 **Em `PadelData`** ✅ implementado (`Sources/PadelData/Models/` + `Repository/`) — mesmo padrão
 de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
@@ -336,4 +336,4 @@ Watch físico.
 - `decisions.md` — o porquê de cada decisão de arquitetura, com mais detalhe de implementação
   nalguns pontos do que este ficheiro.
 - `README.md` — visão geral rápida e instruções de desenvolvimento.
-- `design/mockups/index.html` — os 15 ecrãs desenhados, com o número/nome usado neste documento.
+- `design/mockups/index.html` — os 19 ecrãs desenhados, com o número/nome usado neste documento.
