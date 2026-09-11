@@ -95,10 +95,10 @@ design/mockups/             Galeria HTML com os 15 ecrãs desenhados
 | 13 | Watch: ronda Mix ao vivo | Watch | ✅ |
 | 14 | Watch: controlos da ronda | Watch | ✅ |
 | 15 | Watch: ronda concluída | Watch | ✅ |
-| 16 | Watch: calibrar campo (a marcar um canto) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
-| 17 | Watch: calibrar campo (concluído) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
-| 18 | Watch: calibrar pancadas (a gravar um gesto) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
-| 19 | Watch: calibrar pancadas (concluído — 11 tipos) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
+| 16 | Watch: calibrar campo (a marcar um canto) | Watch | ✅ |
+| 17 | Watch: calibrar campo (concluído) | Watch | ✅ |
+| 18 | Watch: calibrar pancadas (a gravar um gesto) | Watch | ✅ |
+| 19 | Watch: calibrar pancadas (concluído — 11 tipos) | Watch | ✅ |
 
 `RootTabView` (iPhone): Agenda · Histórico · Jogadores · Ajustes (Ajustes fica para o target da
 app, Fase 3 — é território de settings/entitlements, `PadelUI` não o possui).
@@ -107,7 +107,9 @@ app, Fase 3 — é território de settings/entitlements, `PadelUI` não o possui
 volley, bandeja, víbora, smash, serviço, bajada (saída de vidro), rulo, chiquita, balão (lob).
 O `ShotType` em `PadelCore` (`Sources/PadelCore/Court/ShotType.swift`) já tem os 11 casos
 (`.serve` para "serviço", `.lob` para "balão"), com perfil por omissão sintético para cada um em
-`StrokeClassifier.globalDefaultProfiles` — falta só construir as views SwiftUI destes ecrãs.
+`StrokeClassifier.globalDefaultProfiles`. As views SwiftUI (`CourtCalibrationScreen`/
+`CourtCalibrationCompleteScreen`/`StrokeCalibrationScreen`/`StrokeCalibrationCompleteScreen`,
+em `PadelUI/Watch/`) já estão construídas — ver detalhe na secção Fase 4 abaixo.
 
 ---
 
@@ -274,14 +276,21 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
   dois últimos lêem/escrevem via `Player.strokeProfiles` diretamente, nunca um
   `FetchDescriptor`, mesmo padrão de `ParticipantRoster`).
 
-**Em `PadelUI`** 📝 por construir (com dados sintéticos em testes/previews, como todo o resto):
+**Em `PadelUI`** — parte ✅ implementada (com dados sintéticos em testes/previews, como todo o resto):
 
-- Ecrã/fluxo de calibração do campo (Watch): "vai ao canto perto-esquerda e toca", repetido
-  para os 6 pontos.
-- Ecrã/fluxo de setup de pancadas (Watch): "faz 3 forehands", repetido para os 11 tipos.
-- Visualização de heatmap (iPhone, `Canvas` SwiftUI): pontos/zonas sobre um diagrama do campo,
-  coloridos por densidade e/ou por resultado do ponto (ganho/perdido) — consome
-  `ShotHeatmapAggregator.aggregate` já implementado.
+- ✅ Ecrã/fluxo de calibração do campo (Watch, ecrãs 16/17): `CourtCalibrationViewModel`
+  (`ViewModels/`) percorre os 6 `CourtLandmark`, `CourtCalibrationScreen`/
+  `CourtCalibrationCompleteScreen` (`Watch/`) mostram o passo atual e o resultado. `onMark` é
+  uma closure simples (decisions.md #9, regra 2) — quem chama fornece o `GeoPoint` real do
+  CoreLocation; a view nunca importa CoreLocation.
+- ✅ Ecrã/fluxo de setup de pancadas (Watch, ecrãs 18/19): `StrokeCalibrationViewModel` percorre
+  os 11 `ShotType` × 3 repetições, `StrokeCalibrationScreen`/`StrokeCalibrationCompleteScreen`
+  seguem o mesmo padrão de closure (`onRecord`) para o `MotionSample` real do CoreMotion.
+- Nomes em português dos dois enums vivem em `Formatting/CalibrationLabels.swift` (mesmo padrão
+  de `MatchLabels`, decisions.md #9 regra 6).
+- 📝 Por construir: visualização de heatmap (iPhone, `Canvas` SwiftUI) — pontos/zonas sobre um
+  diagrama do campo, coloridos por densidade e/ou por resultado do ponto (ganho/perdido) —
+  consome `ShotHeatmapAggregator.aggregate` já implementado.
 
 ### O que dá para construir e testar já (sem Mac, via `swift test`/CI)
 
@@ -291,6 +300,7 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
   (testado com vetores de características sintéticos).
 - ✅ As entidades e repositórios de `PadelData` (`Shot`, `CourtCalibrationRecord`,
   `StrokeProfileRecord` + os repositórios correspondentes).
+- ✅ Os ecrãs/view models de calibração de campo e de pancadas em `PadelUI` (ver acima).
 - 📝 A visualização do heatmap em `PadelUI`, alimentada por dados sintéticos — ainda por
   construir.
 
@@ -310,9 +320,10 @@ de blob JSON + inverse explícito já usado por `Match`/`Session`/`Player`:
 Fases 0 e 2 estão **concluídas e validadas em CI**. Fase 3 está **bloqueada** — precisa de Mac,
 e é o único caminho para desbloquear os ecrãs 2/11 e ligar tudo a dados reais. Fase 4 tem a
 parte testável-sem-Mac **implementada e validada em CI** (geometria/classificador em
-`PadelCore` — `ShotType` já com os 11 tipos de pancada, entidades/repositórios em `PadelData`);
-falta ainda construir em `PadelUI` (dados sintéticos) as views de calibração de campo/pancadas
-e a visualização de heatmap, para fechar tudo o que dá para fazer sem Mac + Watch físico.
+`PadelCore` — `ShotType` já com os 11 tipos de pancada, entidades/repositórios em `PadelData`,
+e agora também os ecrãs/view models de calibração de campo e de pancadas em `PadelUI`); falta
+só a visualização de heatmap em `PadelUI` (dados sintéticos) para fechar tudo o que dá para
+fazer sem Mac + Watch físico.
 
 ---
 
