@@ -98,15 +98,16 @@ design/mockups/             Galeria HTML com os 15 ecrãs desenhados
 | 16 | Watch: calibrar campo (a marcar um canto) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
 | 17 | Watch: calibrar campo (concluído) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
 | 18 | Watch: calibrar pancadas (a gravar um gesto) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
-| 19 | Watch: calibrar pancadas (concluído — 7 tipos) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
+| 19 | Watch: calibrar pancadas (concluído — 11 tipos) | Watch | 📝 Mockup feito — SwiftUI real é Fase 4/3 |
 
 `RootTabView` (iPhone): Agenda · Histórico · Jogadores · Ajustes (Ajustes fica para o target da
 app, Fase 3 — é território de settings/entitlements, `PadelUI` não o possui).
 
-**Nota**: os ecrãs 16-19 (mockups 2026-09-10) mostram 7 tipos de pancada — forehand, backhand,
-volley, bandeja, víbora, smash, serviço. O `ShotType` já implementado em `PadelCore`
-(`Sources/PadelCore/Court/ShotType.swift`) só tem 4 casos (`forehand`, `backhand`, `smash`,
-`volley`) — falta estender para as 7 quando as views SwiftUI destes ecrãs forem construídas.
+**Nota**: os ecrãs 16-19 (mockups 2026-09-10/11) mostram 11 tipos de pancada — forehand, backhand,
+volley, bandeja, víbora, smash, serviço, bajada (saída de vidro), rulo, chiquita, balão (lob).
+O `ShotType` já implementado em `PadelCore` (`Sources/PadelCore/Court/ShotType.swift`) só tem
+4 casos (`forehand`, `backhand`, `smash`, `volley`) — falta estender para os 11 quando as views
+SwiftUI destes ecrãs forem construídas.
 
 ---
 
